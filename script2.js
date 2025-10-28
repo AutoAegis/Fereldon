@@ -1,4 +1,4 @@
-const API_URL = "https://5c87639f-a295-4f3c-a7fb-8b708ca9a201-00-nppk283jm0n8.worf.replit.dev/fereldon";
+const API_URL = "https://5c87639f-a295-4f3c-a7fb-8b708ca9a201-00-nppk283jm0n8.worf.replit.dev";
 
 async function updateFereldonStats() {
   try {
@@ -25,5 +25,6 @@ async function updateFereldonStats() {
 
 updateFereldonStats();
 setInterval(updateFereldonStats, 30000);
+
 
 
