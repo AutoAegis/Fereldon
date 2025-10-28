@@ -4,7 +4,6 @@ async function updateFereldonStats() {
   try {
     const res = await fetch(API_URL);
 
-    // Safety check
     const contentType = res.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
       const text = await res.text();
