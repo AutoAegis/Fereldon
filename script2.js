@@ -24,3 +24,4 @@ async function updateFereldonStats() {
 
 updateFereldonStats();
 setInterval(updateFereldonStats, 30000);
+
