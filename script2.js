@@ -12,7 +12,7 @@ async function updateFereldonStats() {
 
     const data = await res.json();
 
-    document.getElementById("reach-capital").textContent = data.capital;
+    document.getElementById("reach-capital").textContent = data.capital || "Fereldon City";
     document.getElementById("reach-population").textContent = (data.playerCount || 0).toLocaleString();
     document.getElementById("reach-reputation").textContent = (data.totalCoins || 0).toLocaleString();
     document.getElementById("reach-reputation-change").textContent = (data.averageIncome || 0).toLocaleString();
@@ -24,4 +24,3 @@ async function updateFereldonStats() {
 
 updateFereldonStats();
 setInterval(updateFereldonStats, 30000);
-
