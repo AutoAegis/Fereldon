@@ -1,23 +1,23 @@
 const page = window.location.pathname.split("/").pop();
 
 if (page === "laws.html") {
-    const panels = document.querySelectorAll(".content");
+    const lawCards = document.querySelectorAll(".law-card");
+    const overlay = document.getElementById("overlay");
 
-    panels.forEach(panel => {
-        panel.addEventListener("click", () => {
-            const expanded = document.querySelector(".content.expanded");
-            if (expanded && expanded !== panel) {
-                expanded.classList.remove("expanded");
-            }
-            panel.classList.add("expanded");
-            document.getElementById("overlay").style.display = "block";
+    lawCards.forEach(card => {
+        card.addEventListener("click", () => {
+            const expanded = document.querySelector(".law-card.expanded");
+            if (expanded && expanded !== card) expanded.classList.remove("expanded");
+
+            card.classList.add("expanded");
+            overlay.style.display = "block";
         });
     });
 
-    document.getElementById("overlay").addEventListener("click", () => {
-        const expanded = document.querySelector(".content.expanded");
+    overlay.addEventListener("click", () => {
+        const expanded = document.querySelector(".law-card.expanded");
         if (expanded) expanded.classList.remove("expanded");
-        document.getElementById("overlay").style.display = "none";
+        overlay.style.display = "none";
     });
 }
 
@@ -71,3 +71,4 @@ window.addEventListener("DOMContentLoaded", () => {
     if (hero) setTimeout(() => { hero.classList.add("visible"); }, 100);
     if (brand) setTimeout(() => { brand.classList.add("visible"); }, 150);
 });
+
