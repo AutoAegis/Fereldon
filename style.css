@@ -75,14 +75,18 @@ body {
   align-items: center;
   flex-wrap: wrap;
 }
-.nav-list a {
-  color: var(--stone);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 1.05rem;
-  padding: 6px 10px;
-  border-bottom: 3px solid transparent;
-  transition: all 180ms ease;
+
+.nav-list a{
+   color: #000; /* black links */
+   text-decoration:none;
+   font-weight:600;
+   font-size:1.05rem;
+   padding:6px 10px;
+   border-bottom:3px solid transparent;
+   transition:all 180ms ease;
+   background:transparent;
+}
+
 }
 .nav-list a:hover, .nav-list a:focus {
   color: var(--accent);
@@ -220,3 +224,4 @@ body {
   .brand { flex-direction: column; align-items: flex-start; gap: 8px; }
   .footer .wrap { flex-direction: column; align-items: flex-start; gap: 10px; }
 }
+
