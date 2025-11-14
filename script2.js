@@ -9,8 +9,6 @@ const fields = {
   averageWealth: document.getElementById("reach-average-wealth")
 };
 
-Object.values(fields).forEach(el => el.textContent = "Loading...");
-
 function showLoading() {
   Object.values(fields).forEach(el => {
     if (el) el.textContent = "Loading...";
@@ -21,26 +19,28 @@ async function updateFereldonStats() {
   showLoading();
 
   try {
-    const res = await fetch(API_URL, { cache: "no-cache" });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
 
-    if (!res.ok) throw new Error("API offline");
+    const res = await fetch(API_URL, { cache: "no-cache", signal: controller.signal });
+    clearTimeout(timeout);
+
+    if (!res.ok) throw new Error("API error");
 
     const data = await res.json();
 
     fields.capital.textContent = data.capital;
-    fields.population.textContent = data.population;
+    fields.population.textContent = data.population.toLocaleString();
     fields.reputation.textContent = data.reputation;
-    fields.reputationChange.textContent = data.reputationChange;
+    fields.reputationChange.textContent = data.reputationChange >= 0 ? "+" + data.reputationChange : data.reputationChange;
     fields.totalWealth.textContent = data.totalWealth.toLocaleString();
     fields.averageWealth.textContent = data.averageWealth.toLocaleString();
 
   } catch (err) {
-    console.warn("API offline, keeping Loading...");
+    console.warn("API unreachable or timeout, showing Loading...", err);
+    showLoading();
   }
 }
 
 updateFereldonStats();
 setInterval(updateFereldonStats, 30000);
-
-
-
