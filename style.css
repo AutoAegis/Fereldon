@@ -94,6 +94,14 @@ body {
   border-bottom-color: var(--accent-dark); /* subtle underline accent */
 }
 
+#nav-toggle {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
 .nav-burger {
   display: none;
   cursor: pointer;
@@ -234,3 +242,4 @@ body {
   .brand { flex-direction: column; align-items: flex-start; gap: 8px; }
   .footer .wrap { flex-direction: column; align-items: flex-start; gap: 10px; }
 }
+
