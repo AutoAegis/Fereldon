@@ -96,10 +96,13 @@ body {
 
 #nav-toggle {
   position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-  pointer-events: none;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  clip: rect(0 0 0 0);
+  overflow: hidden;
 }
 
 .nav-burger {
@@ -242,4 +245,5 @@ body {
   .brand { flex-direction: column; align-items: flex-start; gap: 8px; }
   .footer .wrap { flex-direction: column; align-items: flex-start; gap: 10px; }
 }
+
 
