@@ -9,26 +9,20 @@ const fields = {
   averageWealth: document.getElementById("reach-average-wealth")
 };
 
-document.addEventListener("DOMContentLoaded", () => {
-  Object.values(fields).forEach(el => {
-    if (el) el.textContent = "Loading...";
-  });
-
-  updateFereldonStats();
-});
-
 function showLoading() {
   Object.values(fields).forEach(el => {
     if (el) el.textContent = "Loading...";
   });
 }
 
+requestAnimationFrame(showLoading);
+
 async function updateFereldonStats() {
   showLoading();
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3000);
+    const timeout = setTimeout(() => controller.abort(), 3000); // 3s timeout
 
     const res = await fetch(API_URL, { cache: "no-cache", signal: controller.signal });
     clearTimeout(timeout);
@@ -49,5 +43,7 @@ async function updateFereldonStats() {
     showLoading();
   }
 }
+
+requestAnimationFrame(updateFereldonStats);
 
 setInterval(updateFereldonStats, 30000);
