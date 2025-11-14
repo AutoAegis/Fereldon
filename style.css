@@ -32,12 +32,11 @@ body {
   flex-direction: column;
 }
 
-/* HEADER */
 .header {
   background-image: url('textures/header-texture.jpg');
   background-size: cover;
   background-position: center;
-  padding: 18px 16px;
+  padding: 30px 16px;
   border-bottom: 2px solid rgba(255,255,255,0.03);
   box-shadow: inset 0 -10px 60px rgba(0,0,0,0.45);
 }
@@ -53,7 +52,7 @@ body {
   margin: 0;
   font-family: var(--ff-heading);
   font-weight: 700;
-  color: #000; /* ARISELLE title black */
+  color: #000;
   font-size: 1.6rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -67,7 +66,6 @@ body {
   opacity: 0.85;
 }
 
-/* NAVIGATION */
 .nav-list {
   list-style: none;
   margin: 0;
@@ -79,19 +77,19 @@ body {
   flex-wrap: wrap;
 }
 .nav-list a {
-  color: #000; /* black nav links */
+  color: #000;
   text-decoration: none;
   font-weight: 600;
   font-size: 1.05rem;
   padding: 6px 10px;
   border-bottom: 3px solid transparent;
-  transition: transform 180ms ease; /* scale transition */
+  transition: transform 180ms ease;
   background: transparent;
 }
 .nav-list a:hover,
 .nav-list a:focus {
-  transform: scale(1.2); /* scale up on hover */
-  border-bottom-color: var(--accent-dark); /* subtle underline accent */
+  transform: scale(1.2);
+  border-bottom-color: var(--accent-dark);
 }
 
 #nav-toggle {
@@ -115,7 +113,6 @@ body {
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05));
 }
 
-/* HERO */
 .hero {
   max-width: var(--max-width);
   margin: 28px auto 0;
@@ -141,7 +138,6 @@ body {
   font-size: 1.1rem;
 }
 
-/* PANELS */
 .panel {
   max-width: var(--content-width);
   margin: 18px auto;
@@ -166,7 +162,6 @@ body {
   color: rgba(255,255,255,0.88);
 }
 
-/* GRID & CARDS */
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -186,7 +181,6 @@ body {
   box-shadow: 0 18px 40px rgba(0,0,0,0.7);
 }
 
-/* FOOTER */
 .footer {
   background-image: url('textures/footer-texture.jpg');
   background-size: cover;
@@ -208,7 +202,6 @@ body {
 }
 .footer small { color: rgba(255,255,255,0.65); }
 
-/* BUTTONS */
 .btn {
   display: inline-block;
   padding: 10px 18px;
@@ -227,7 +220,6 @@ body {
   box-shadow: 0 12px 28px rgba(184,141,58,0.24);
 }
 
-/* RESPONSIVE */
 @media (max-width: 980px) {
   .grid { grid-template-columns: repeat(2, 1fr); }
   .hero h1 { font-size: 2rem; }
@@ -294,3 +286,4 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
+
