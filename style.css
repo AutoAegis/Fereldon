@@ -1,7 +1,7 @@
 :root {
   --bg-900: #141417;
   --bg-800: #1e1f22;
-  --panel: rgba(0,0,0,0.7);
+  --panel: rgba(0,0,0,0.85);
   --muted: #bfc6c9;
   --accent: #D9A441;
   --accent-dark: #b08a34;
@@ -17,21 +17,39 @@
 html, body { height: 100%; margin:0; font-family: var(--ff-body); line-height: 1.6; background: linear-gradient(180deg,var(--bg-900),var(--bg-800)); color: var(--muted); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 .site { display: flex; flex-direction: column; min-height: 100vh; }
 
-.panel {
+body:not(.law-page) .panel {
   max-width: var(--content-width);
   margin: 18px auto;
   padding: 24px;
-  background: var(--panel);
+  background: rgba(0,0,0,0.9);
   border-radius: var(--radius);
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+}
+
+body:not(.law-page) .panel h1,
+body:not(.law-page) .panel h2 {
+  margin-top: 0;
+  font-family: var(--ff-heading);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+body:not(.law-page) .panel h3 {
+  color: var(--accent);
+  margin: 0 0 8px;
+}
+
+body:not(.law-page) .panel p {
+  margin: 0.6rem 0;
+  color: rgba(255,255,255,0.88);
 }
 
 body:not(.law-page) .card {
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.1));
+  background: rgba(0,0,0,0.85);
   padding: 18px;
   border-radius: var(--radius);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.05);
   text-align: left;
   box-shadow: 0 12px 36px rgba(0,0,0,0.6);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
