@@ -138,7 +138,6 @@ body {
   font-size: 1.1rem;
 }
 
-/* PANELS */
 .panel {
   max-width: var(--content-width);
   margin: 18px auto;
@@ -240,17 +239,22 @@ body {
 }
 
 .content {
-  transition: max-height 0.4s ease, padding 0.4s ease;
-  overflow: hidden;
-  max-height: 150px;
-  cursor: pointer;
+    background: var(--panel);
+    border-radius: var(--radius);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    cursor: pointer;
+}
+
+.content:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.6);
 }
 
 .content.expanded {
-  max-height: 600px;
-  padding: 24px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.7);
-  background: linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.5));
+    transform: scale(1.05);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.7);
 }
 
 #overlay {
@@ -287,3 +291,4 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
+
