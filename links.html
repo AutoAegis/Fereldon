@@ -1,49 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Links - Ariselle</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Links - Ariselle</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
+  <div class="site">
+
+    <header class="header">
+      <div class="brand">
         <h1>Ariselle</h1>
-    </header>
-	
-    <nav>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-			<li><a href="about.html">About</a></li>
-            <li><a href="lore.html">Lore</a></li>
-            <li><a href="links.html">Links</a></li>
-            <li><a href="laws.html">Law</a></li>
-			<li><a href="contact.html">Contact</a></li>
-			<li><a href="economy.html">Economy</a></li>
+        <span class="tag">Start Your Journey</span>
+      </div>
+
+      <nav class="nav">
+        <input type="checkbox" id="nav-toggle">
+        <label for="nav-toggle" class="nav-burger">☰</label>
+        <ul class="nav-list">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="lore.html">Lore</a></li>
+          <li><a href="links.html" class="active">Links</a></li>
+          <li><a href="laws.html">Law</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="economy.html">Economy</a></li>
         </ul>
-    </nav>
-	
-	<section class="hero">
-        <h2>Links</h2>
-        <p>Start your journey now.</p>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <h1>Links</h1>
+      <p>Start your journey now.</p>
     </section>
 
-		<section class="content">
-            <h1>Discord Communication Server:</h1>
-            <p>https://discord.gg/gsf6rFbmNn</p>
-		</section>
-	
-		<section class="content">
-            <h1>Our Roblox Game:</h1>
-            <p>https://www.roblox.com/games/102626582662467/Gates-of-Ariselle</p>
-		</section>
+    <main class="main">
+      <div class="panel">
+        <h2>Discord Communication Server</h2>
+        <p><a href="https://discord.gg/gsf6rFbmNn" target="_blank">https://discord.gg/gsf6rFbmNn</a></p>
+      </div>
 
+      <div class="panel">
+        <h2>Our Roblox Game</h2>
+        <p><a href="https://www.roblox.com/games/102626582662467/Gates-of-Ariselle" target="_blank">https://www.roblox.com/games/102626582662467/Gates-of-Ariselle</a></p>
+      </div>
+    </main>
 
-    <footer>
-        <p>&copy; 2025 Ariselle. All Rights Reserved.</p>
+    <footer class="footer">
+      <div class="wrap">
+        <span>&copy; 2025 Ariselle. All Rights Reserved.</span>
+      </div>
     </footer>
+
+  </div>
 </body>
 </html>
-
-
-
