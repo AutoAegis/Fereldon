@@ -36,10 +36,12 @@ body {
   background-image: url('textures/header-texture.jpg');
   background-size: cover;
   background-position: center;
-  padding: 30px 16px;
+  padding: 30px 16px 45px 16px;
   border-bottom: 2px solid rgba(255,255,255,0.03);
   box-shadow: inset 0 -10px 60px rgba(0,0,0,0.45);
+  position: relative;
 }
+
 .header .brand {
   max-width: var(--max-width);
   margin: 0 auto;
@@ -48,23 +50,31 @@ body {
   justify-content: space-between;
   gap: 24px;
 }
+
 .brand h1 {
   margin: 0;
   font-family: var(--ff-heading);
   font-weight: 700;
   color: #000;
   font-size: 1.8rem;
-  letter-spacing: 0.06em;
   line-height: 1.4;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   text-shadow: 0 2px 8px rgba(0,0,0,0.3);
   transition: transform 180ms ease;
 }
+
 .brand .tag {
   color: rgba(255,255,255,0.75);
   font-size: 0.9rem;
   font-weight: 500;
   opacity: 0.85;
+}
+
+.nav {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
 }
 
 .nav-list {
@@ -77,6 +87,7 @@ body {
   align-items: center;
   flex-wrap: wrap;
 }
+
 .nav-list a {
   color: #000;
   text-decoration: none;
@@ -87,6 +98,7 @@ body {
   transition: transform 180ms ease;
   background: transparent;
 }
+
 .nav-list a:hover,
 .nav-list a:focus {
   transform: scale(1.2);
@@ -113,6 +125,7 @@ body {
   border: 1px solid rgba(255,255,255,0.03);
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05));
 }
+
 
 .hero {
   max-width: var(--max-width);
@@ -287,6 +300,7 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
+
 
 
 
