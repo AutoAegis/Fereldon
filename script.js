@@ -1,23 +1,24 @@
 const page = window.location.pathname.split("/").pop();
 
 if (page === "laws.html") {
-    const lawCards = document.querySelectorAll(".law-card.clickable");
-    const overlay = document.getElementById("overlay");
+    const panels = document.querySelectorAll(".content");
 
-    lawCards.forEach(card => {
-        card.addEventListener("click", () => {
-            const expanded = document.querySelector(".law-card.expanded");
-            if (expanded && expanded !== card) expanded.classList.remove("expanded");
+    panels.forEach(panel => {
+        panel.addEventListener("click", () => {
+            const expanded = document.querySelector(".content.expanded");
+            if (expanded && expanded !== panel) {
+                expanded.classList.remove("expanded");
+            }
 
-            card.classList.add("expanded");
-            overlay.style.display = "block";
+            panel.classList.add("expanded");
+            document.getElementById("overlay").style.display = "block";
         });
     });
 
-    overlay.addEventListener("click", () => {
-        const expanded = document.querySelector(".law-card.expanded");
+    document.getElementById("overlay").addEventListener("click", () => {
+        const expanded = document.querySelector(".content.expanded");
         if (expanded) expanded.classList.remove("expanded");
-        overlay.style.display = "none";
+        document.getElementById("overlay").style.display = "none";
     });
 }
 
@@ -30,23 +31,43 @@ if (page === "economy.html") {
     });
 }
 
-const fadeElements = document.querySelectorAll(".fade-in");
-
 function handleScrollFade() {
+    const fadeElements = document.querySelectorAll(".fade-in");
     const triggerBottom = window.innerHeight * 0.85;
+
     fadeElements.forEach(el => {
         const elTop = el.getBoundingClientRect().top;
-        if (elTop < triggerBottom) el.classList.add("visible");
+        if (elTop < triggerBottom) {
+            el.classList.add("visible");
+        }
     });
 }
 
 window.addEventListener("scroll", handleScrollFade);
 window.addEventListener("DOMContentLoaded", handleScrollFade);
 
-window.addEventListener("DOMContentLoaded", () => {
-    const hero = document.querySelector(".hero");
-    const brand = document.querySelector(".brand");
+if (page === "index.html") {
+    window.addEventListener("DOMContentLoaded", () => {
+        const hero = document.querySelector(".hero");
+        if (hero) {
+            setTimeout(() => {
+                hero.classList.add("visible");
+            }, 100);
+        }
+    });
+}
 
-    if (hero) setTimeout(() => hero.classList.add("visible"), 100);
-    if (brand) setTimeout(() => brand.classList.add("visible"), 150);
+const cards = document.querySelectorAll(".card.clickable");
+
+cards.forEach(card => {
+    card.addEventListener("mouseenter", () => {
+        card.style.transform = 'scale(1.05)';
+        card.style.boxShadow = '0 20px 50px rgba(0,0,0,0.7)';
+        card.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+    });
+
+    card.addEventListener("mouseleave", () => {
+        card.style.transform = 'scale(1)';
+        card.style.boxShadow = '0 18px 40px rgba(0,0,0,0.7)';
+    });
 });
