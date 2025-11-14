@@ -22,7 +22,7 @@ async function updateFereldonStats() {
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3000); // 3s timeout
+    const timeout = setTimeout(() => controller.abort(), 3000);
 
     const res = await fetch(API_URL, { cache: "no-cache", signal: controller.signal });
     clearTimeout(timeout);
@@ -47,3 +47,4 @@ async function updateFereldonStats() {
 requestAnimationFrame(updateFereldonStats);
 
 setInterval(updateFereldonStats, 30000);
+
