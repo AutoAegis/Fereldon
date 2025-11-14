@@ -75,7 +75,7 @@ body {
   margin: 10px 0 0 0;
   padding: 0;
   display: flex;
-  gap: 30px;
+  gap: 36px;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
@@ -293,6 +293,7 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
+
 
 
 
