@@ -1,104 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Law - Ariselle</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Law - Ariselle</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
+  <div class="site">
+
+    <header class="header">
+      <div class="brand">
         <h1>Ariselle</h1>
-    </header>
-	
-    <nav>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="lore.html">Lore</a></li>
-            <li><a href="links.html">Links</a></li>
-            <li><a href="laws.html">Law</a></li>
-            <li><a href="contact.html">Contact</a></li>
-			<li><a href="economy.html">Economy</a></li>
+        <span class="tag">Laws of the Empire</span>
+      </div>
+
+      <nav class="nav">
+        <input type="checkbox" id="nav-toggle">
+        <label for="nav-toggle" class="nav-burger">☰</label>
+        <ul class="nav-list">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="lore.html">Lore</a></li>
+          <li><a href="links.html">Links</a></li>
+          <li><a href="laws.html" class="active">Law</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="economy.html">Economy</a></li>
         </ul>
-    </nav>
-	
+      </nav>
+    </header>
+
     <section class="hero">
-        <h2>The Law</h2>
-        <p>Laws of the Empire</p>
+      <h1>The Law</h1>
+      <p>Laws of the Empire</p>
     </section>
 
-    <div class="container">
-        <section class="content" onclick="expandBox(this)">
-            <h1>Law 1:</h1>
-            <p>blah blah blah</p>
-        </section>
+    <main class="main">
+      <div class="grid">
+        <div class="card clickable" onclick="expandBox(this)">
+          <h2>Law 1:</h2>
+          <p>blah blah blah</p>
+        </div>
+        <div class="card clickable" onclick="expandBox(this)">
+          <h2>Law 2:</h2>
+          <p>blah blah blah</p>
+        </div>
+        <div class="card clickable" onclick="expandBox(this)">
+          <h2>Law 3:</h2>
+          <p>blah blah blah</p>
+        </div>
+        <div class="card clickable" onclick="expandBox(this)">
+          <h2>Law 4:</h2>
+          <p>blah blah blah</p>
+        </div>
+        <div class="card clickable" onclick="expandBox(this)">
+          <h2>Law 5:</h2>
+          <p>blah blah blah</p>
+        </div>
+        <div class="card clickable" onclick="expandBox(this)">
+          <h2>Law 6:</h2>
+          <p>blah blah blah</p>
+        </div>
+        <div class="card clickable" onclick="expandBox(this)">
+          <h2>Law 7:</h2>
+          <p>blah blah blah</p>
+        </div>
+        <div class="card clickable" onclick="expandBox(this)">
+          <h2>Law 8:</h2>
+          <p>blah blah blah</p>
+        </div>
+        <div class="card clickable" onclick="expandBox(this)">
+          <h2>Law 9:</h2>
+          <p>blah blah blah</p>
+        </div>
+        <div class="card clickable" onclick="expandBox(this)">
+          <h2>Law 10:</h2>
+          <p>blah blah blah</p>
+        </div>
+        <div class="card clickable" onclick="expandBox(this)">
+          <h2>Law 11:</h2>
+          <p>blah blah blah</p>
+        </div>
+        <div class="card clickable" onclick="expandBox(this)">
+          <h2>Law 12:</h2>
+          <p>blah blah blah</p>
+        </div>
+      </div>
+    </main>
 
-        <section class="content" onclick="expandBox(this)">
-            <h1>Law 2:</h1>
-            <p>blah blah blah</p>
-        </section>
-
-        <section class="content" onclick="expandBox(this)">
-            <h1>Law 3:</h1>
-            <p>blah blah blah</p>
-        </section>
-
-        <section class="content" onclick="expandBox(this)">
-            <h1>Law 4:</h1>
-            <p>blah blah blah</p>
-        </section>
-
-        <section class="content" onclick="expandBox(this)">
-            <h1>Law 5:</h1>
-            <p>blah blah blah</p>
-        </section>
-
-        <section class="content" onclick="expandBox(this)">
-            <h1>Law 6:</h1>
-            <p>blah blah blah</p>
-        </section>
-
-        <section class="content" onclick="expandBox(this)">
-            <h1>Law 7:</h1>
-            <p>blah blah blah</p>
-        </section>
-
-        <section class="content" onclick="expandBox(this)">
-            <h1>Law 8:</h1>
-            <p>blah blah blah</p>
-        </section>
-		
-        <section class="content" onclick="expandBox(this)">
-            <h1>Law 9:</h1>
-            <p>blah blah blah</p>
-        </section>
-
-        <section class="content" onclick="expandBox(this)">
-            <h1>Law 10:</h1>
-            <p>blah blah blah</p>
-        </section>
-
-        <section class="content" onclick="expandBox(this)">
-            <h1>Law 11:</h1>
-            <p>blah blah blah</p>
-        </section>
-
-        <section class="content" onclick="expandBox(this)">
-            <h1>Law 12:</h1>
-            <p>blah blah blah</p>
-        </section>
-    </div>
+    <footer class="footer">
+      <div class="wrap">
+        <span>&copy; 2025 Ariselle. All Rights Reserved.</span>
+      </div>
+    </footer>
 
     <div id="overlay" onclick="closeBox()"></div>
 
-    <footer>
-        <p>&copy; 2025 Ariselle. All Rights Reserved.</p>
-    </footer>
+  </div>
 
-	<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
-
-
-
