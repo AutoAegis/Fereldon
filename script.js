@@ -66,3 +66,15 @@ cards.forEach(card => {
         card.style.boxShadow = '0 18px 40px rgba(0,0,0,0.7)';
     });
 });
+
+if (page === "index.html") {
+    window.addEventListener("DOMContentLoaded", () => {
+        const hero = document.querySelector(".hero");
+        if (hero) {
+            // Delay slightly for smooth effect
+            setTimeout(() => {
+                hero.classList.add("visible");
+            }, 100);
+        }
+    });
+}
