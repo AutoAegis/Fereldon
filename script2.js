@@ -9,6 +9,8 @@ const fields = {
   averageWealth: document.getElementById("reach-average-wealth")
 };
 
+Object.values(fields).forEach(el => el.textContent = "Loading...");
+
 function showLoading() {
   Object.values(fields).forEach(el => {
     if (el) el.textContent = "Loading...";
@@ -39,5 +41,6 @@ async function updateFereldonStats() {
 
 updateFereldonStats();
 setInterval(updateFereldonStats, 30000);
+
 
 
