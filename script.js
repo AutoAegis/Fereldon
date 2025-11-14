@@ -67,14 +67,19 @@ cards.forEach(card => {
     });
 });
 
-if (page === "index.html") {
-    window.addEventListener("DOMContentLoaded", () => {
-        const hero = document.querySelector(".hero");
-        if (hero) {
-            // Delay slightly for smooth effect
-            setTimeout(() => {
-                hero.classList.add("visible");
-            }, 100);
-        }
-    });
-}
+window.addEventListener("DOMContentLoaded", () => {
+    const hero = document.querySelector(".hero");
+    const brand = document.querySelector(".brand");
+
+    if (hero) {
+        setTimeout(() => {
+            hero.classList.add("visible");
+        }, 100);
+    }
+
+    if (brand) {
+        setTimeout(() => {
+            brand.classList.add("visible");
+        }, 150);
+    }
+});
