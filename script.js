@@ -31,12 +31,14 @@ if (page === "economy.html") {
     });
 }
 
+const fadeElements = document.querySelectorAll(".fade-in");
+
 function handleScrollFade() {
-    const fadeElements = document.querySelectorAll(".fade-in");
     const triggerBottom = window.innerHeight * 0.85;
 
     fadeElements.forEach(el => {
         const elTop = el.getBoundingClientRect().top;
+
         if (elTop < triggerBottom) {
             el.classList.add("visible");
         }
@@ -46,15 +48,8 @@ function handleScrollFade() {
 window.addEventListener("scroll", handleScrollFade);
 window.addEventListener("DOMContentLoaded", handleScrollFade);
 
-if (page === "index.html") {
-    window.addEventListener("DOMContentLoaded", () => {
-        const hero = document.querySelector(".hero");
-        if (hero) {
-            setTimeout(() => {
-                hero.classList.add("visible");
-            }, 100);
-        }
-    });
+if (page === "contact.html") {
+    console.log("Contact page loaded");
 }
 
 const cards = document.querySelectorAll(".card.clickable");
@@ -70,4 +65,21 @@ cards.forEach(card => {
         card.style.transform = 'scale(1)';
         card.style.boxShadow = '0 18px 40px rgba(0,0,0,0.7)';
     });
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+    const hero = document.querySelector(".hero");
+    const brand = document.querySelector(".brand");
+
+    if (hero) {
+        setTimeout(() => {
+            hero.classList.add("visible");
+        }, 100);
+    }
+
+    if (brand) {
+        setTimeout(() => {
+            brand.classList.add("visible");
+        }, 150);
+    }
 });
