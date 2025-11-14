@@ -1,54 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us - Ariselle</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - Ariselle</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
+  <div class="site">
+
+    <header class="header">
+      <div class="brand">
         <h1>Ariselle</h1>
-    </header>
-    
-    <nav>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="lore.html">Lore</a></li>
-            <li><a href="links.html">Links</a></li>
-            <li><a href="laws.html">Law</a></li>
-            <li><a href="contact.html">Contact</a></li>
-			<li><a href="economy.html">Economy</a></li>
+        <span class="tag">Get in Touch</span>
+      </div>
+
+      <nav class="nav">
+        <input type="checkbox" id="nav-toggle">
+        <label for="nav-toggle" class="nav-burger">☰</label>
+        <ul class="nav-list">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="lore.html">Lore</a></li>
+          <li><a href="links.html">Links</a></li>
+          <li><a href="laws.html">Law</a></li>
+          <li><a href="contact.html" class="active">Contact</a></li>
+          <li><a href="economy.html">Economy</a></li>
         </ul>
-    </nav>
-    
+      </nav>
+    </header>
+
     <section class="hero">
-        <h2>Welcome to Ariselle</h2>
-        <p>Founded by John.</p>
+      <h1>Welcome to Ariselle</h1>
+      <p>Founded by John.</p>
     </section>
 
-    <section class="game-info">
-        <h3>Contact Us to Join the Genre</h3>
-        <p>If you are interested in becoming part of the Realm Reborn universe, please contact us through the following:</p>
+    <main class="main">
+
+      <div class="panel">
+        <h2>Contact Us to Join the Genre</h2>
+        <p>If you are interested in becoming part of Ariselle, please contact us through the following:</p>
         <p><strong>Email:</strong> <a href="mailto:contact@ariselle.com">contact@ariselle.com</a></p>
         <p><strong>Discord:</strong> Join us on Discord at <a href="https://discord.gg/gsf6rFbmNn" target="_blank">Ariselle Discord</a></p>
-    </section>
+      </div>
 
-    <section class="game-info">
-        <h3>About the Game</h3>
-        <div class="content">
-            <p>blady blady blah</p>
-        </div>
-    </section>
+      <div class="panel">
+        <h2>About the Game</h2>
+        <p>Blady blady blah</p>
+      </div>
+
+    </main>
+
+    <footer class="footer">
+      <div class="wrap">
+        <span>&copy; 2025 Ariselle. All Rights Reserved.</span>
+      </div>
+    </footer>
 
     <div id="overlay" onclick="closeBox()"></div>
 
-    <footer>
-        <p>&copy; 2025 Ariselle. All Rights Reserved.</p>
-    </footer>
+  </div>
+  <script src="script2.js"></script>
 </body>
 </html>
-
-
-
