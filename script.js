@@ -1,12 +1,12 @@
 const page = window.location.pathname.split("/").pop();
 
 if (page === "laws.html") {
-    const lawCards = document.querySelectorAll(".law-card");
+    const lawCards = document.querySelectorAll(".card.clickable");
     const overlay = document.getElementById("overlay");
 
     lawCards.forEach(card => {
         card.addEventListener("click", () => {
-            const expanded = document.querySelector(".law-card.expanded");
+            const expanded = document.querySelector(".card.clickable.expanded");
             if (expanded && expanded !== card) expanded.classList.remove("expanded");
 
             card.classList.add("expanded");
@@ -15,7 +15,7 @@ if (page === "laws.html") {
     });
 
     overlay.addEventListener("click", () => {
-        const expanded = document.querySelector(".law-card.expanded");
+        const expanded = document.querySelector(".card.clickable.expanded");
         if (expanded) expanded.classList.remove("expanded");
         overlay.style.display = "none";
     });
@@ -71,4 +71,5 @@ window.addEventListener("DOMContentLoaded", () => {
     if (hero) setTimeout(() => { hero.classList.add("visible"); }, 100);
     if (brand) setTimeout(() => { brand.classList.add("visible"); }, 150);
 });
+
 
