@@ -14,8 +14,8 @@ async function updateFereldonStats() {
 
     document.getElementById("reach-capital").textContent = data.capital || "Fereldon City";
     document.getElementById("reach-population").textContent = (data.playerCount || 0).toLocaleString();
-    document.getElementById("reach-reputation").textContent = (data.totalCoins || 0).toLocaleString();
-    document.getElementById("reach-reputation-change").textContent = (data.averageIncome || 0).toLocaleString();
+    document.getElementById("reach-total-coins").textContent = (data.totalCoins || 0).toLocaleString();
+    document.getElementById("reach-average-income").textContent = (data.averageIncome || 0).toLocaleString();
 
   } catch (err) {
     console.error("Failed to fetch Fereldon stats:", err);
