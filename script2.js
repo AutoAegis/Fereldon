@@ -48,3 +48,4 @@ requestAnimationFrame(updateFereldonStats);
 
 setInterval(updateFereldonStats, 30000);
 
+
