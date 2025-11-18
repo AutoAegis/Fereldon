@@ -2,7 +2,7 @@ const page = window.location.pathname.split("/").pop();
 if (page === "economy.html") { 
     window.addEventListener("DOMContentLoaded", () => { 
         document.getElementById("reach-capital").textContent = "Fereldon"; 
-        document.getElementById("reach-population").textContent = "0; 
+        document.getElementById("reach-population").textContent = "0"; 
         document.getElementById("reach-reputation").textContent = "0"; 
         document.getElementById("reach-reputation-change").textContent = "0"; 
     }); 
@@ -40,3 +40,4 @@ window.addEventListener("DOMContentLoaded", () => {
     if (hero) setTimeout(() => { hero.classList.add("visible"); }, 100); 
     if (brand) setTimeout(() => { brand.classList.add("visible"); }, 150); 
 });
+
