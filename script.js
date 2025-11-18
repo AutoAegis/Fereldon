@@ -4,10 +4,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
     const hero = document.querySelector(".hero");
     if (hero) {
+        hero.offsetHeight; 
         setTimeout(() => {
             hero.classList.add("visible");
         }, 50);
     }
+
 
     const brand = document.querySelector(".brand");
     if (brand) {
@@ -60,3 +62,4 @@ window.addEventListener("DOMContentLoaded", () => {
         window.addEventListener("scroll", handleScrollFade);
     }
 });
+
