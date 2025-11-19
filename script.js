@@ -1,26 +1,5 @@
 const page = window.location.pathname.split("/").pop();
 
-if (page === "laws.html") {
-    const panels = document.querySelectorAll(".content");
-
-    panels.forEach(panel => {
-        panel.addEventListener("click", () => {
-            const expanded = document.querySelector(".content.expanded");
-            if (expanded && expanded !== panel) {
-                expanded.classList.remove("expanded");
-            }
-            panel.classList.add("expanded");
-            document.getElementById("overlay").style.display = "block";
-        });
-    })
-
-    document.getElementById("overlay").addEventListener("click", () => {
-        const expanded = document.querySelector(".content.expanded");
-        if (expanded) expanded.classList.remove("expanded");
-        document.getElementById("overlay").style.display = "none";
-    });
-}
-
 if (page === "economy.html") {
     window.addEventListener("DOMContentLoaded", () => {
         document.getElementById("reach-capital").textContent = "Fereldon";
@@ -71,4 +50,5 @@ window.addEventListener("DOMContentLoaded", () => {
     if (hero) setTimeout(() => { hero.classList.add("visible"); }, 100);
     if (brand) setTimeout(() => { brand.classList.add("visible"); }, 150);
 });
+
 
