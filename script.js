@@ -1,11 +1,32 @@
 const page = window.location.pathname.split("/").pop();
 
+if (page === "laws.html") {
+    const panels = document.querySelectorAll(".content");
+
+    panels.forEach(panel => {
+        panel.addEventListener("click", () => {
+            const expanded = document.querySelector(".content.expanded");
+            if (expanded && expanded !== panel) {
+                expanded.classList.remove("expanded");
+            }
+            panel.classList.add("expanded");
+            document.getElementById("overlay").style.display = "block";
+        });
+    });
+
+    document.getElementById("overlay").addEventListener("click", () => {
+        const expanded = document.querySelector(".content.expanded");
+        if (expanded) expanded.classList.remove("expanded");
+        document.getElementById("overlay").style.display = "none";
+    });
+}
+
 if (page === "economy.html") {
     window.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("reach-capital").textContent = "Fereldon";
-        document.getElementById("reach-population").textContent = "0;
-        document.getElementById("reach-reputation").textContent = "0";
-        document.getElementById("reach-reputation-change").textContent = "0";
+        document.getElementById("reach-capital").textContent = "Fereldan City";
+        document.getElementById("reach-population").textContent = "85,000";
+        document.getElementById("reach-reputation").textContent = "Neutral";
+        document.getElementById("reach-reputation-change").textContent = "+5";
     });
 }
 
@@ -26,7 +47,7 @@ if (page === "contact.html") {
     console.log("Contact page loaded");
 }
 
-if (["index.html", "about.html", "lore.html", "links.html", "laws.html"].includes(page)) {
+if (["index.html", "about.html", "lore.html", "links.html"].includes(page)) {
     const cards = document.querySelectorAll(".card.clickable");
 
     cards.forEach(card => {
