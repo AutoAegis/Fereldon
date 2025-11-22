@@ -368,3 +368,45 @@ body {
   }
 }
 
+.user-box {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-left: 18px;
+  font-family: var(--ff-body);
+}
+
+.user-box a {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600
+  font-size: 0.95rem;
+  background: rgba(255,255,255,0.08);
+  color: var(--accent);
+  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.12);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.user-box a:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(255,255,255,0.18);
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(0,0,0,0.1));
+}
+
+.user-box #welcome {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1rem;
+  background: rgba(255,255,255,0.06);
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.12);
+  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+@media(max-width: 760px) {
+  .user-box {
+    margin-top: 8px;
+  }
+}
