@@ -410,3 +410,25 @@ body {
     margin-top: 8px;
   }
 }
+
+.input-field {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.08);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.95rem;
+  outline: none;
+  transition: box-shadow 160ms ease, transform 160ms ease;
+}
+
+.input-field::placeholder {
+  color: rgba(255,255,255,0.45);
+}
+
+.input-field:focus {
+  box-shadow: 0 0 12px rgba(255,255,255,0.25);
+  transform: translateY(-2px);
+}
