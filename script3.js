@@ -15,20 +15,43 @@ const db = firebase.firestore();
 const userBox = document.getElementById('user-box');
 auth.onAuthStateChanged(user => {
   if(user){
-    userBox.innerHTML = `
+    if(userBox) userBox.innerHTML = `
       <span id="welcome">Welcome, ${user.email}</span>
       <a href="#" id="logout-btn">Logout</a>
     `;
-    document.getElementById('logout-btn').onclick = () => {
-      auth.signOut().then(() => window.location.href = "login.html");
-    };
+    if(document.getElementById('logout-btn')){
+      document.getElementById('logout-btn').onclick = () => {
+        auth.signOut().then(() => window.location.href = "login.html");
+      };
+    }
   } else {
-    userBox.innerHTML = `
+    if(userBox) userBox.innerHTML = `
       <a href="login.html">Login</a>
       <a href="register.html">Register</a>
     `;
   }
 });
+
+const registerForm = document.getElementById('register-form');
+if(registerForm){
+  registerForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('register-email').value.trim();
+    const password = document.getElementById('register-password').value.trim();
+
+    if(!email || !password) return alert("Fill both fields!");
+
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(() => {
+        alert("Account created successfully!");
+        window.location.href = "login.html";
+      })
+      .catch(error => {
+        alert(error.message);
+      });
+  });
+}
 
 if(document.getElementById('forum-panel')){
   auth.onAuthStateChanged(user => {
