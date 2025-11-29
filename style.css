@@ -432,3 +432,57 @@ body {
   box-shadow: 0 0 12px rgba(255,255,255,0.25);
   transform: translateY(-2px);
 }
+
+#user-box {
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+
+  padding: 10px 16px;
+  border-radius: 8px;
+
+  font-family: Arial, sans-serif;
+  z-index: 9999;
+}
+
+#user-box #welcome {
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#user-box a {
+  color: #ffd8f5;
+  font-size: 14px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+#user-box a:hover {
+  color: #fff;
+  text-shadow: 0 0 5px #fff;
+}
+
+@media (max-width: 600px) {
+  #user-box {
+    top: 10px;
+    right: 10px;
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  
+  #user-box #welcome {
+    font-size: 12px;
+  }
+  
+  #user-box a {
+    font-size: 12px;
+  }
+}
