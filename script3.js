@@ -13,79 +13,72 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 const userBox = document.getElementById('user-box');
-if(userBox){
-  auth.onAuthStateChanged(user => {
-    if(user){
-      db.collection("users").doc(user.uid).get().then(doc=>{
-        const username = doc.exists ? doc.data().username : "User";
-        userBox.innerHTML = `
-          <span id="welcome">Welcome, ${username}</span>
-          <a href="#" id="logout-btn">Logout</a>
-        `;
-        document.getElementById('logout-btn').onclick = () => {
-          auth.signOut().then(() => window.location.href = "login.html");
-        };
-      });
-    } else {
+function updateUserBox(user) {
+  if(!userBox) return;
+  if(user){
+    db.collection("users").doc(user.uid).get().then(doc=>{
+      const username = doc.exists ? doc.data().username : "User";
       userBox.innerHTML = `
-        <a href="login.html">Login</a>
-        <a href="register.html">Register</a>
+        <span id="welcome">Welcome, ${username}</span>
+        <a href="#" id="logout-btn">Logout</a>
       `;
-    }
-  });
+      document.getElementById('logout-btn').onclick = () => {
+        auth.signOut().then(() => window.location.href = "login.html");
+      };
+    });
+  } else {
+    userBox.innerHTML = `
+      <a href="login.html">Login</a>
+      <a href="register.html">Register</a>
+    `;
+  }
 }
+
+auth.onAuthStateChanged(user => updateUserBox(user));
 
 const registerForm = document.getElementById('register-form');
 if(registerForm){
-  registerForm.addEventListener('submit', (e) => {
+  registerForm.addEventListener('submit', e => {
     e.preventDefault();
-
     const username = document.getElementById('register-username').value.trim();
     const password = document.getElementById('register-password').value.trim();
-
     if(!username || !password) return alert("Fill both fields!");
 
-    const usersRef = db.collection("users");
-
-    usersRef.where("username", "==", username).get().then(snapshot=>{
+    db.collection("users").where("username","==",username).get().then(snapshot=>{
       if(!snapshot.empty) return alert("Username already taken!");
-
       const dummyEmail = username + "@ariselleapp.com";
 
-      auth.createUserWithEmailAndPassword(dummyEmail, password)
+      auth.createUserWithEmailAndPassword(dummyEmail,password)
         .then(userCredential=>{
-          usersRef.doc(userCredential.user.uid).set({
-            username: username,
+          db.collection("users").doc(userCredential.user.uid).set({
+            username,
             email: dummyEmail,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           }).then(()=>{
             alert("Account created successfully!");
             window.location.href = "forum.html";
           });
-        })
-        .catch(err => alert("Error: " + err.message));
+        }).catch(err=>alert(err.message));
     });
   });
 }
 
 const loginForm = document.getElementById('login-form');
 if(loginForm){
-  loginForm.addEventListener('submit', (e)=>{
+  loginForm.addEventListener('submit', e => {
     e.preventDefault();
-
     const username = document.getElementById('login-username').value.trim();
     const password = document.getElementById('login-password').value.trim();
     if(!username || !password) return alert("Fill both fields!");
 
-    db.collection("users").where("username", "==", username).get()
-      .then(snapshot=>{
-        if(snapshot.empty) return alert("Username not found!");
-        const email = snapshot.docs[0].data().email;
+    db.collection("users").where("username","==",username).get().then(snapshot=>{
+      if(snapshot.empty) return alert("Username not found!");
+      const email = snapshot.docs[0].data().email;
 
-        auth.signInWithEmailAndPassword(email, password)
-          .then(()=> window.location.href = "forum.html")
-          .catch(err => alert("Error: " + err.message));
-      });
+      auth.signInWithEmailAndPassword(email,password)
+        .then(()=> window.location.href = "forum.html")
+        .catch(err=>alert(err.message));
+    });
   });
 }
 
@@ -112,28 +105,24 @@ function createTopic(){
     const username = doc.data().username;
 
     db.collection("topics")
-      .where("authorId", "==", userId)
-      .orderBy("createdAt", "desc")
+      .where("authorId","==",userId)
+      .orderBy("createdAt","desc")
       .limit(1)
-      .get()
-      .then(snapshot=>{
+      .get().then(snapshot=>{
         if(!snapshot.empty){
-          const lastTopic = snapshot.docs[0].data();
-          const lastTime = lastTopic.createdAt.toDate();
-          if(now - lastTime < 24*60*60*1000){
-            return alert("You can only create 1 topic per 24 hours!");
-          }
+          const lastTime = snapshot.docs[0].data().createdAt.toDate();
+          if(now - lastTime < 24*60*60*1000) return alert("You can only create 1 topic per 24 hours!");
         }
 
         db.collection("topics").add({
           title,
           author: username,
           authorId: userId,
-          comments: [{user: username, userId: userId, text: comment, timestamp: firebase.firestore.FieldValue.serverTimestamp()}],
+          comments: [{user: username, userId, text: comment, timestamp: firebase.firestore.FieldValue.serverTimestamp()}],
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(()=>{
-          document.getElementById('new-topic').value = '';
-          document.getElementById('new-comment').value = '';
+          document.getElementById('new-topic').value='';
+          document.getElementById('new-comment').value='';
           loadTopics();
         });
       });
@@ -144,31 +133,30 @@ function loadTopics(){
   const container = document.getElementById('topics');
   if(!container) return;
   container.innerHTML = '';
-  db.collection("topics").orderBy("createdAt","desc").get()
-    .then(snapshot=>{
-      snapshot.forEach(doc=>{
-        const data = doc.data();
-        const div = document.createElement('div');
-        div.className = 'topic';
-        div.innerHTML = `<strong>${data.title}</strong> (${data.comments.length} comments)`;
-        div.onclick = ()=> openTopic(doc.id, data.title, data.comments);
-        container.appendChild(div);
-      });
+  db.collection("topics").orderBy("createdAt","desc").get().then(snapshot=>{
+    snapshot.forEach(doc=>{
+      const data = doc.data();
+      const div = document.createElement('div');
+      div.className = 'topic';
+      div.innerHTML = `<strong>${data.title}</strong> (${data.comments.length} comments)`;
+      div.onclick = ()=> openTopic(doc.id, data.title, data.comments);
+      container.appendChild(div);
     });
+  });
 }
 
 let currentTopicId = null;
-function openTopic(id, title, comments){
+function openTopic(id,title,comments){
   currentTopicId = id;
-  document.getElementById('forum-panel').style.display = 'none';
-  document.getElementById('topic-detail-panel').style.display = 'block';
+  document.getElementById('forum-panel').style.display='none';
+  document.getElementById('topic-detail-panel').style.display='block';
   document.getElementById('topic-title').innerText = title;
 
   const commentsDiv = document.getElementById('comments');
   commentsDiv.innerHTML = '';
   comments.forEach(c=>{
     const p = document.createElement('div');
-    p.className = 'comment';
+    p.className='comment';
     p.innerHTML = `<strong>${c.user}:</strong> ${c.text}`;
     commentsDiv.appendChild(p);
   });
@@ -190,17 +178,15 @@ function addComment(){
       const data = doc.data();
       const comments = data.comments || [];
 
-      const userComments = comments.filter(c => c.userId === userId);
+      const userComments = comments.filter(c => c.userId===userId);
       if(userComments.length){
-        const lastCommentTime = userComments[userComments.length-1].timestamp.toDate();
-        if(now - lastCommentTime < 24*60*60*1000){
-          return alert("You can only comment once per 24 hours on this topic!");
-        }
+        const lastTime = userComments[userComments.length-1].timestamp.toDate();
+        if(now - lastTime < 24*60*60*1000) return alert("You can only comment once per 24 hours on this topic!");
       }
 
-      comments.push({user: username, userId: userId, text, timestamp: firebase.firestore.FieldValue.serverTimestamp()});
+      comments.push({user: username, userId, text, timestamp: firebase.firestore.FieldValue.serverTimestamp()});
       topicRef.update({comments}).then(()=>{
-        document.getElementById('comment-input').value = '';
+        document.getElementById('comment-input').value='';
         openTopic(currentTopicId, data.title, comments);
       });
     });
@@ -208,7 +194,7 @@ function addComment(){
 }
 
 function backToForum(){
-  document.getElementById('forum-panel').style.display = 'block';
-  document.getElementById('topic-detail-panel').style.display = 'none';
+  document.getElementById('forum-panel').style.display='block';
+  document.getElementById('topic-detail-panel').style.display='none';
   loadTopics();
 }
