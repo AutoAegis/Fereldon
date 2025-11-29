@@ -26,7 +26,7 @@ if (page === "contact.html") {
     console.log("Contact page loaded");
 }
 
-if (["index.html", "about.html", "lore.html", "links.html"].includes(page)) {
+if (["index.html", "about.html", "lore.html", "links.html", "forum.html"].includes(page)) {
     const cards = document.querySelectorAll(".card.clickable");
 
     cards.forEach(card => {
@@ -50,5 +50,6 @@ window.addEventListener("DOMContentLoaded", () => {
     if (hero) setTimeout(() => { hero.classList.add("visible"); }, 100);
     if (brand) setTimeout(() => { brand.classList.add("visible"); }, 150);
 });
+
 
 
