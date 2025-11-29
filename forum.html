@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forum - Ariselle</title>
+<link rel="stylesheet" href="style.css">
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<div class="site">
+
+  <header class="header">
+    <div class="brand">
+      <h1>Ariselle</h1>
+      <span class="tag">Forum</span>
+    </div>
+
+    <nav class="nav">
+      <input type="checkbox" id="nav-toggle">
+      <label for="nav-toggle" class="nav-burger">☰</label>
+      <ul class="nav-list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="lore.html">Lore</a></li>
+        <li><a href="links.html">Links</a></li>
+        <li><a href="laws.html">Law</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="economy.html">Economy</a></li>
+        <li><a href="leaderboard.html">Leaderboard</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="forum.html" class="active">Forum</a></li>
+      </ul>
+    </nav>
+
+    <div class="user-box" id="user-box">
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="panel" id="forum-panel">
+      <h2>Forum</h2>
+
+      <h3>Create Topic</h3>
+      <input type="text" id="new-topic" class="input-field" placeholder="Topic Title">
+      <textarea id="new-comment" class="input-field" placeholder="Write something..."></textarea>
+      <button class="btn" onclick="createTopic()">Post Topic</button>
+
+      <h3>Topics</h3>
+      <div id="topics"></div>
+    </div>
+
+    <div class="panel" id="topic-detail-panel" style="display:none;">
+      <button class="btn" onclick="backToForum()">← Back</button>
+      <h2 id="topic-title"></h2>
+      <div id="comments"></div>
+      <textarea id="comment-input" class="input-field" placeholder="Add a comment..."></textarea>
+      <button class="btn" onclick="addComment()">Post Comment</button>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">&copy; 2025 Ariselle. All rights reserved.</div>
+  </footer>
+
+</div>
+
+<script src="script3.js"></script>
+
+</body>
+</html>
