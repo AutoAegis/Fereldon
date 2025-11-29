@@ -23,13 +23,13 @@
   <main class="main">
     <div class="panel" style="max-width:400px; text-align:center;">
       <h2>Login</h2>
-      <form id="login-form">
-        <input type="email" id="login-email" placeholder="Email" class="input-field" required><br><br>
+      <form id="login-form" onsubmit="loginUser(); return false;">
+        <input type="text" id="login-username" placeholder="Username" class="input-field" required><br><br>
         <input type="password" id="login-password" placeholder="Password" class="input-field" required><br><br>
         <button type="submit" class="btn">Login</button>
       </form>
       <p style="margin-top:15px; font-size:0.9rem;">
-        Don’t have an account? <a href="register.html" style="color:var(--accent);">Register</a>
+        Don't have an account? <a href="register.html" style="color:var(--accent);">Register</a>
       </p>
     </div>
   </main>
