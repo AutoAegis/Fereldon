@@ -42,18 +42,38 @@ if(document.getElementById('forum-panel')){
 }
 
 function createTopic(){
-  const title = document.getElementById('new-topic').value;
-  const comment = document.getElementById('new-comment').value;
+  const title = document.getElementById('new-topic').value.trim();
+  const comment = document.getElementById('new-comment').value.trim();
   if(!title || !comment) return alert("Fill both fields!");
-  db.collection("topics").add({
-    title,
-    comments: [{user: auth.currentUser.email, text: comment}],
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(()=>{
-    document.getElementById('new-topic').value = '';
-    document.getElementById('new-comment').value = '';
-    loadTopics();
-  });
+
+  const userEmail = auth.currentUser.email;
+  const now = new Date();
+
+  db.collection("topics")
+    .where("author", "==", userEmail)
+    .orderBy("createdAt", "desc")
+    .limit(1)
+    .get()
+    .then(snapshot => {
+      if(!snapshot.empty){
+        const lastTopic = snapshot.docs[0].data();
+        const lastTime = lastTopic.createdAt.toDate();
+        if(now - lastTime < 24 * 60 * 60 * 1000){
+          return alert("You can only create 1 topic per 24 hours!");
+        }
+      }
+
+      db.collection("topics").add({
+        title,
+        author: userEmail,
+        comments: [{user: userEmail, text: comment, timestamp: firebase.firestore.FieldValue.serverTimestamp()}],
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        document.getElementById('new-topic').value = '';
+        document.getElementById('new-comment').value = '';
+        loadTopics();
+      });
+    });
 }
 
 function loadTopics(){
@@ -91,15 +111,27 @@ function openTopic(id, title, comments){
 }
 
 function addComment(){
-  const text = document.getElementById('comment-input').value;
+  const text = document.getElementById('comment-input').value.trim();
   if(!text) return alert("Write something!");
+
   const topicRef = db.collection("topics").doc(currentTopicId);
+  const userEmail = auth.currentUser.email;
+  const now = new Date();
 
   topicRef.get().then(doc=>{
     if(!doc.exists) return alert("Topic not found!");
     const data = doc.data();
     const comments = data.comments || [];
-    comments.push({user: auth.currentUser.email, text});
+
+    const userComments = comments.filter(c => c.user === userEmail);
+    if(userComments.length){
+      const lastCommentTime = userComments[userComments.length - 1].timestamp.toDate();
+      if(now - lastCommentTime < 24 * 60 * 60 * 1000){
+        return alert("You can only comment once per 24 hours on this topic!");
+      }
+    }
+
+    comments.push({user: userEmail, text, timestamp: firebase.firestore.FieldValue.serverTimestamp()});
     topicRef.update({comments}).then(()=>{
       document.getElementById('comment-input').value = '';
       openTopic(currentTopicId, data.title, comments);
