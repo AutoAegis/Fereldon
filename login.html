@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Ariselle</title>
   <link rel="stylesheet" href="style.css">
-
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -23,12 +22,15 @@
   <main class="main">
     <div class="panel" style="max-width:400px; text-align:center;">
       <h2>Login</h2>
-      <form id="login-form" onsubmit="loginUser(); return false;">
+      <form id="login-form">
         <input type="text" id="login-username" placeholder="Username" class="input-field" required><br><br>
         <input type="password" id="login-password" placeholder="Password" class="input-field" required><br><br>
         <button type="submit" class="btn">Login</button>
       </form>
-      <p style="margin-top:15px; font-size:0.9rem;">
+      <p style="margin-top:10px; font-size:0.9rem;">
+        <a href="reset.html" style="color:var(--accent);">Forgot Password?</a>
+      </p>
+      <p style="margin-top:5px; font-size:0.9rem;">
         Don't have an account? <a href="register.html" style="color:var(--accent);">Register</a>
       </p>
     </div>
