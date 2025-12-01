@@ -23,7 +23,7 @@
       <label for="nav-toggle" class="nav-burger">☰</label>
       <ul class="nav-list">
         <li><a href="index.html">Home</a></li>
-        <li><a href="about.html" class="active">About</a></li>
+        <li><a href="about.html">About</a></li>
         <li><a href="lore.html">Lore</a></li>
         <li><a href="links.html">Links</a></li>
         <li><a href="laws.html">Law</a></li>
@@ -31,7 +31,7 @@
         <li><a href="economy.html">Economy</a></li>
         <li><a href="leaderboard.html">Leaderboard</a></li>
         <li><a href="blog.html">Blog</a></li>
-        <li><a href="forum.html">Forum</a></li>
+        <li><a href="forum.html" class="active">Forum</a></li>
       </ul>
       <div id="user-box"></div>
     </nav>
@@ -39,7 +39,7 @@
 
   <section class="hero">
     <h1>The Forum</h1>
-    <p>Topic and comments on Ariselle-related stuff.</p>
+    <p>Topic and comments on Ariselle-related discussions.</p>
   </section>
   
   <main class="main">
@@ -58,7 +58,7 @@
       <div id="comments" style="margin-top:10px;"></div>
       <input type="text" id="comment-input" placeholder="Write a comment" class="input-field" style="margin-top:10px;">
       <button class="btn" onclick="addComment()">Post Comment</button>
-      <button class="btn back-btn" onclick="backToForum()" style="margin-top:10px;">Back to Forum</button>
+      <button class="btn" onclick="backToForum()" style="margin-top:10px;">Back to Forum</button>
     </div>
   </main>
 
@@ -69,6 +69,5 @@
 
 <script src="script.js"></script>
 <script src="forum.js"></script>
-<script src="script3.js"></script>
 </body>
 </html>
