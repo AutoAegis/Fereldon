@@ -2,8 +2,8 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 
 const ADMIN_USERS = ["autoaegis"];
-const TOPIC_COOLDOWN = 24 * 60 * 60 * 1000; // 24 hours
-const COMMENT_COOLDOWN = 60 * 60 * 1000; // 1 hour
+const TOPIC_COOLDOWN = 24 * 60 * 60 * 1000; 
+const COMMENT_COOLDOWN = 60 * 60 * 1000;
 
 function updateUserBox(user) {
   const userBox = document.getElementById('user-box');
