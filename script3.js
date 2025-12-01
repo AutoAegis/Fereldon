@@ -58,14 +58,11 @@ if (registerForm) {
     db.collection("users").where("username", "==", username).get().then(snapshot => {
       if (!snapshot.empty) return alert("Username already taken!");
 
-      const loginEmail = username + "@ariselleapp.com";
-
-      auth.createUserWithEmailAndPassword(loginEmail, password)
+      auth.createUserWithEmailAndPassword(email, password)
         .then(userCredential => {
           db.collection("users").doc(userCredential.user.uid).set({
             username,
-            loginEmail,
-            realEmail: email,
+            email,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           }).then(() => {
             alert("Account created successfully!");
@@ -89,9 +86,9 @@ if (loginForm) {
     db.collection("users").where("username", "==", username).get().then(snapshot => {
       if (snapshot.empty) return alert("Username not found!");
 
-      const loginEmail = snapshot.docs[0].data().loginEmail;
+      const email = snapshot.docs[0].data().email;
 
-      auth.signInWithEmailAndPassword(loginEmail, password)
+      auth.signInWithEmailAndPassword(email, password)
         .then(() => window.location.href = "forum.html")
         .catch(err => alert(err.message));
     });
@@ -110,10 +107,10 @@ if (resetForm) {
       .then(snapshot => {
         if (snapshot.empty) return alert("Username not found!");
 
-        const realEmail = snapshot.docs[0].data().realEmail;
+        const email = snapshot.docs[0].data().email;
 
-        auth.sendPasswordResetEmail(realEmail)
-          .then(() => alert("Password reset email sent to: " + realEmail))
+        auth.sendPasswordResetEmail(email)
+          .then(() => alert("Password reset email sent to: " + email))
           .catch(err => alert(err.message));
       })
       .catch(err => console.error(err));
