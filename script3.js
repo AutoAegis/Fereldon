@@ -21,10 +21,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (user) {
       db.collection("users").doc(user.uid).get().then(doc => {
         const username = doc.exists ? doc.data().username : "User";
-        userBox.innerHTML = `<span id="welcome">Welcome, ${username}</span><a href="#" id="logout-btn">Logout</a>`;
+        userBox.innerHTML = `
+          <span id="welcome">Welcome, ${username}</span>
+          <a href="#" id="logout-btn">Logout</a>
+        `;
         document.getElementById("logout-btn").onclick = () => {
           auth.signOut().then(() => window.location.href = "index.html");
         };
+      }).catch(() => {
+        userBox.innerHTML = `<a href="login.html">Login</a><a href="register.html">Register</a>`;
       });
     } else {
       userBox.innerHTML = `<a href="login.html">Login</a><a href="register.html">Register</a>`;
@@ -37,23 +42,28 @@ document.addEventListener("DOMContentLoaded", () => {
   if (registerForm) {
     registerForm.addEventListener('submit', e => {
       e.preventDefault();
+
       const email = document.getElementById('register-email').value.trim();
       const username = document.getElementById('register-username').value.trim();
       const password = document.getElementById('register-password').value.trim();
       if (!email || !username || !password) return alert("Fill all fields!");
-      db.collection("users").where("username", "==", username).get().then(snapshot => {
-        if (!snapshot.empty) return alert("Username already taken!");
-        auth.createUserWithEmailAndPassword(email, password).then(cred => {
-          db.collection("users").doc(cred.user.uid).set({
-            username,
-            email,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          }).then(() => {
-            alert("Account created successfully!");
-            window.location.href = "forum.html";
-          });
+
+      db.collection("users").where("username", "==", username).get()
+        .then(snapshot => {
+          if (!snapshot.empty) return alert("Username already taken!");
+
+          auth.createUserWithEmailAndPassword(email, password)
+            .then(cred => {
+              db.collection("users").doc(cred.user.uid).set({
+                username,
+                email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+              }).then(() => {
+                alert("Account created successfully!");
+                window.location.href = "forum.html";
+              });
+            }).catch(err => alert(err.message));
         }).catch(err => alert(err.message));
-      });
     });
   }
 
@@ -61,16 +71,20 @@ document.addEventListener("DOMContentLoaded", () => {
   if (loginForm) {
     loginForm.addEventListener('submit', e => {
       e.preventDefault();
+
       const username = document.getElementById('login-username').value.trim();
       const password = document.getElementById('login-password').value.trim();
       if (!username || !password) return alert("Fill both fields!");
-      db.collection("users").where("username", "==", username).get().then(snapshot => {
-        if (snapshot.empty) return alert("Username not found!");
-        const email = snapshot.docs[0].data().email;
-        auth.signInWithEmailAndPassword(email, password)
-          .then(() => window.location.href = "forum.html")
-          .catch(err => alert(err.message));
-      });
+
+      db.collection("users").where("username", "==", username).get()
+        .then(snapshot => {
+          if (snapshot.empty) return alert("Username not found!");
+          const email = snapshot.docs[0].data().email;
+
+          auth.signInWithEmailAndPassword(email, password)
+            .then(() => window.location.href = "forum.html")
+            .catch(err => alert(err.message));
+        }).catch(err => alert(err.message));
     });
   }
 
@@ -78,15 +92,19 @@ document.addEventListener("DOMContentLoaded", () => {
   if (resetForm) {
     resetForm.addEventListener('submit', e => {
       e.preventDefault();
+
       const username = document.getElementById("reset-username").value.trim();
       if (!username) return alert("Enter your username!");
-      db.collection("users").where("username", "==", username).get().then(snapshot => {
-        if (snapshot.empty) return alert("Username not found!");
-        const email = snapshot.docs[0].data().email;
-        auth.sendPasswordResetEmail(email)
-          .then(() => alert("Password reset email sent to: " + email))
-          .catch(err => alert(err.message));
-      });
+
+      db.collection("users").where("username", "==", username).get()
+        .then(snapshot => {
+          if (snapshot.empty) return alert("Username not found!");
+          const email = snapshot.docs[0].data().email;
+
+          auth.sendPasswordResetEmail(email)
+            .then(() => alert("Password reset email sent to: " + email))
+            .catch(err => alert(err.message));
+        }).catch(err => alert(err.message));
     });
   }
 
