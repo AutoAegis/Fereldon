@@ -7,31 +7,51 @@ const commentInput = document.getElementById("comment-input");
 
 let currentTopicId = null;
 let currentUser = null;
-const cooldowns = {};
-const admins = ["autoaegis"];
 
-auth.onAuthStateChanged(user => {
+const cooldowns = {};
+
+auth.onAuthStateChanged(async user => {
   currentUser = user;
+
   if (!user) {
     alert("You must be logged in to access the forum!");
     window.location.href = "login.html";
-  } else {
-    loadTopics();
+    return;
   }
+
+  // ensure role loaded from script3.js
+  while (!window.userRole) {
+    await new Promise(r => setTimeout(r, 50));
+  }
+
+  loadTopics();
 });
+
+const isAdmin = () => window.userRole === "admin";
+const isTester = () => window.userRole === "tester";
+
+function roleClass(role) {
+  if (role === "admin") return "role-admin";
+  if (role === "tester") return "role-tester";
+  return "";
+}
 
 function loadTopics() {
   topicsDiv.innerHTML = "";
+
   db.collection("topics").orderBy("createdAt", "desc").get().then(snapshot => {
     snapshot.forEach(doc => {
       const data = doc.data();
       const div = document.createElement("div");
       div.className = "panel trello-card clickable";
+
       div.innerHTML = `
-        <strong>${data.title}</strong> by ${data.username} <br>
+        <strong class="${roleClass(data.role)}">${data.title}</strong> 
+        by <span class="${roleClass(data.role)}">${data.username}</span><br>
         <small>${data.createdAt?.toDate().toLocaleString() || ""}</small>
-        ${admins.includes(currentUser.displayName) || currentUser.uid === doc.id ? `<button onclick="deleteTopic('${doc.id}')">Delete</button>` : ""}
+        ${isAdmin() ? `<button onclick="event.stopPropagation(); deleteTopic('${doc.id}')">Delete</button>` : ""}
       `;
+
       div.onclick = () => openTopic(doc.id, data.title);
       topicsDiv.appendChild(div);
     });
@@ -40,38 +60,40 @@ function loadTopics() {
 
 function createTopic() {
   if (!currentUser) return alert("You must be logged in!");
+
   const title = document.getElementById("new-topic").value.trim();
   const comment = document.getElementById("new-comment").value.trim();
   if (!title || !comment) return alert("Fill both fields!");
 
   const uid = currentUser.uid;
+  const lastTime = cooldowns[uid]?.topic || 0;
+  if (!isAdmin() && Date.now() - lastTime < 60000)
+    return alert("Wait 1 minute between creating topics.");
 
-  if (!admins.includes(currentUser.displayName)) {
-    const lastTime = cooldowns[uid]?.topic || 0;
-    if (Date.now() - lastTime < 60000) return alert("Wait 1 minute between creating topics.");
-    cooldowns[uid] = { ...cooldowns[uid], topic: Date.now() };
-  }
+  cooldowns[uid] = { ...cooldowns[uid], topic: Date.now() };
 
   db.collection("users").doc(uid).get().then(userDoc => {
-    const username = userDoc.data().username;
+    const { username, role } = userDoc.data();
 
-    const topicRef = db.collection("topics").doc(); // FIX
+    const topicRef = db.collection("topics").doc();
 
     topicRef.set({
       title,
       username,
+      role,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
-      return topicRef.collection("comments").doc().set({
+      topicRef.collection("comments").doc().set({
         username,
+        role,
         text: comment,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        alert("Topic created!");
+        document.getElementById("new-topic").value = "";
+        document.getElementById("new-comment").value = "";
+        loadTopics();
       });
-    }).then(() => {
-      alert("Topic created!");
-      document.getElementById("new-topic").value = "";
-      document.getElementById("new-comment").value = "";
-      loadTopics();
     });
   });
 }
@@ -92,59 +114,67 @@ function backToForum() {
 
 function loadComments() {
   commentsDiv.innerHTML = "";
-  if (!currentTopicId) return;
 
-  db.collection("topics").doc(currentTopicId).collection("comments").orderBy("createdAt", "asc").get().then(snapshot => {
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const div = document.createElement("div");
-      div.className = "trello-card";
-      div.innerHTML = `
-        <strong>${data.username}</strong>: ${data.text} <br>
-        <small>${data.createdAt?.toDate().toLocaleString() || ""}</small>
-        ${(admins.includes(currentUser.displayName) || currentUser.uid === doc.id) ? `<button onclick="deleteComment('${doc.id}')">Delete</button>` : ""}
-      `;
-      commentsDiv.appendChild(div);
+  db.collection("topics").doc(currentTopicId).collection("comments")
+    .orderBy("createdAt", "asc").get().then(snapshot => {
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const div = document.createElement("div");
+        div.className = "trello-card";
+
+        div.innerHTML = `
+          <strong class="${roleClass(data.role)}">${data.username}</strong>: 
+          ${data.text}<br>
+          <small>${data.createdAt?.toDate().toLocaleString() || ""}</small>
+          ${(isAdmin() || isTester()) ? 
+            `<button onclick="deleteComment('${doc.id}')">Delete</button>` 
+            : ""}
+        `;
+
+        commentsDiv.appendChild(div);
+      });
     });
-  });
 }
 
 function addComment() {
   if (!currentUser) return alert("You must be logged in!");
-  if (!currentTopicId) return;
-
   const text = commentInput.value.trim();
   if (!text) return alert("Enter a comment!");
 
   const uid = currentUser.uid;
-  if (!admins.includes(currentUser.displayName)) {
-    const lastTime = cooldowns[uid]?.comment || 0;
-    if (Date.now() - lastTime < 30000) return alert("Wait 30 seconds between comments.");
-    cooldowns[uid] = { ...cooldowns[uid], comment: Date.now() };
-  }
+  const lastTime = cooldowns[uid]?.comment || 0;
+  if (!isAdmin() && !isTester() && Date.now() - lastTime < 30000)
+    return alert("Wait 30 seconds between comments.");
+
+  cooldowns[uid] = { ...cooldowns[uid], comment: Date.now() };
 
   db.collection("users").doc(uid).get().then(userDoc => {
-    const username = userDoc.data().username;
-    db.collection("topics").doc(currentTopicId).collection("comments").doc().set({
-      username,
-      text,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-      commentInput.value = "";
-      loadComments();
-    });
+    const { username, role } = userDoc.data();
+
+    db.collection("topics").doc(currentTopicId)
+      .collection("comments").doc().set({
+        username,
+        role,
+        text,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        commentInput.value = "";
+        loadComments();
+      });
   });
 }
 
 function deleteTopic(topicId) {
-  if (!currentUser) return;
-  if (!confirm("Are you sure you want to delete this topic?")) return;
-  db.collection("topics").doc(topicId).delete().then(() => loadTopics());
+  if (!isAdmin()) return;
+  if (!confirm("Delete this topic?")) return;
+
+  db.collection("topics").doc(topicId).delete().then(loadTopics);
 }
 
 function deleteComment(commentId) {
-  if (!currentUser || !currentTopicId) return;
-  if (!confirm("Are you sure you want to delete this comment?")) return;
+  if (!isAdmin() && !isTester()) return;
+  if (!confirm("Delete this comment?")) return;
 
-  db.collection("topics").doc(currentTopicId).collection("comments").doc(commentId).delete().then(() => loadComments());
+  db.collection("topics").doc(currentTopicId).collection("comments")
+    .doc(commentId).delete().then(loadComments);
 }
