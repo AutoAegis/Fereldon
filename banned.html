@@ -19,7 +19,7 @@
 
   <main class="main">
     <div class="panel" style="max-width:700px; margin:36px auto; text-align:left;">
-      <h2>Your account has been banned</h2>
+      <h2>Account Terminated</h2>
       <div id="ban-details">
         <p>Loading ban details...</p>
       </div>
@@ -52,36 +52,6 @@ const db = firebase.firestore();
 const urlParams = new URLSearchParams(window.location.search);
 const uidParam = urlParams.get("uid");
 
-function showMessage(html) {
-  document.getElementById("ban-details").innerHTML = html;
-}
-
-async function loadBanInfo(uid) {
-  try {
-    const doc = await db.collection("banned").doc(uid).get();
-    if (!doc.exists) {
-      showMessage("<p>Ban information not found. If you believe this is an error, contact support.</p>");
-      return;
-    }
-    const data = doc.data();
-    const bannedAt = data.bannedAt ? data.bannedAt.toDate().toLocaleString() : "Unknown time";
-    const reason = data.reason || "No reason provided";
-    const bannedBy = data.bannedBy || "Moderator";
-    const appeal = data.appealInstructions || "Please contact support to appeal.";
-
-    showMessage(`
-      <p><strong>Username:</strong> ${uid}</p>
-      <p><strong>Banned by:</strong> ${bannedBy}</p>
-      <p><strong>Banned at:</strong> ${bannedAt}</p>
-      <p><strong>Reason:</strong><br>${escapeHtml(reason)}</p>
-      <p><strong>Appeal instructions:</strong><br>${escapeHtml(appeal)}</p>
-    `);
-  } catch (err) {
-    console.error(err);
-    showMessage("<p>Failed to load ban details. Try again later.</p>");
-  }
-}
-
 function escapeHtml(s) {
   if (typeof s !== "string") return s;
   return s.replace(/[&<>"']/g, function (m) {
@@ -89,12 +59,38 @@ function escapeHtml(s) {
   });
 }
 
+async function loadBanInfo(uid) {
+  try {
+    const doc = await db.collection("banned").doc(uid).get();
+    if (!doc.exists) {
+      document.getElementById("ban-details").innerHTML = "<p>No ban found for this account.</p>";
+      return;
+    }
+    const data = doc.data();
+    const bannedAt = data.bannedAt ? data.bannedAt.toDate().toLocaleString() : "Unknown time";
+    const reason = data.reason || "No reason provided";
+    const bannedBy = data.bannedBy || "Moderator";
+    const appeal = data.appealInstructions || "Please contact support.";
+
+    document.getElementById("ban-details").innerHTML = `
+      <p><strong>Account UID:</strong> ${escapeHtml(uid)}</p>
+      <p><strong>Banned by:</strong> ${escapeHtml(bannedBy)}</p>
+      <p><strong>Banned at:</strong> ${escapeHtml(bannedAt)}</p>
+      <p><strong>Reason:</strong><br>${escapeHtml(reason)}</p>
+      <p><strong>Appeal instructions:</strong><br>${escapeHtml(appeal)}</p>
+    `;
+  } catch (err) {
+    console.error(err);
+    document.getElementById("ban-details").innerHTML = "<p>Failed to load ban details. Try again later.</p>";
+  }
+}
+
 if (uidParam) {
   loadBanInfo(uidParam);
 } else {
   auth.onAuthStateChanged(user => {
     if (!user) {
-      showMessage("<p>Please sign in to view ban details (if applicable).</p>");
+      document.getElementById("ban-details").innerHTML = "<p>Please sign in to view ban details.</p>";
       return;
     }
     loadBanInfo(user.uid);
