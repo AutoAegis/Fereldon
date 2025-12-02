@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Account Banned - Ariselle</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="site">
+  <header class="header">
+    <div class="brand">
+      <h1>Ariselle</h1>
+      <span class="tag">Account Banned</span>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="panel" style="max-width:700px; margin:36px auto; text-align:left;">
+      <h2>Your account has been banned</h2>
+      <div id="ban-details">
+        <p>Loading ban details...</p>
+      </div>
+
+      <div style="margin-top:18px;">
+        <a href="index.html" class="btn">Return to Home</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">&copy; 2025 Ariselle. All rights reserved.</div>
+  </footer>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDtXW6okJbrP1pDbV_ICrdSKXhI30t5AJQ",
+  authDomain: "ariselle.firebaseapp.com",
+  projectId: "ariselle",
+  storageBucket: "ariselle.firebasestorage.app",
+  messagingSenderId: "1086998280524",
+  appId: "1:1086998280524:web:094e3a0c6ece0af507b7e9",
+  measurementId: "G-PHLK2R0YSE"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const urlParams = new URLSearchParams(window.location.search);
+const uidParam = urlParams.get("uid");
+
+function showMessage(html) {
+  document.getElementById("ban-details").innerHTML = html;
+}
+
+async function loadBanInfo(uid) {
+  try {
+    const doc = await db.collection("banned").doc(uid).get();
+    if (!doc.exists) {
+      showMessage("<p>Ban information not found. If you believe this is an error, contact support.</p>");
+      return;
+    }
+    const data = doc.data();
+    const bannedAt = data.bannedAt ? data.bannedAt.toDate().toLocaleString() : "Unknown time";
+    const reason = data.reason || "No reason provided";
+    const bannedBy = data.bannedBy || "Moderator";
+    const appeal = data.appealInstructions || "Please contact support to appeal.";
+
+    showMessage(`
+      <p><strong>Username:</strong> ${uid}</p>
+      <p><strong>Banned by:</strong> ${bannedBy}</p>
+      <p><strong>Banned at:</strong> ${bannedAt}</p>
+      <p><strong>Reason:</strong><br>${escapeHtml(reason)}</p>
+      <p><strong>Appeal instructions:</strong><br>${escapeHtml(appeal)}</p>
+    `);
+  } catch (err) {
+    console.error(err);
+    showMessage("<p>Failed to load ban details. Try again later.</p>");
+  }
+}
+
+function escapeHtml(s) {
+  if (typeof s !== "string") return s;
+  return s.replace(/[&<>"']/g, function (m) {
+    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
+  });
+}
+
+if (uidParam) {
+  loadBanInfo(uidParam);
+} else {
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      showMessage("<p>Please sign in to view ban details (if applicable).</p>");
+      return;
+    }
+    loadBanInfo(user.uid);
+  });
+}
+</script>
+</body>
+</html>
