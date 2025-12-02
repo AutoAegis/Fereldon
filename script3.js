@@ -59,10 +59,10 @@ if (registerForm) {
           }).then(() => {
             alert("Account created successfully!");
             window.location.href = "forum.html";
-          });
-        });
-      }).catch(err => alert(err.message));
-    }).catch(err => alert(err.message));
+          }).catch(err => alert("Failed to save username mapping: " + err.message));
+        }).catch(err => alert("Failed to save user data: " + err.message));
+      }).catch(err => alert("Failed to create account: " + err.message));
+    }).catch(err => alert("Failed to check username: " + err.message));
   });
 }
 
@@ -79,12 +79,14 @@ if (loginForm) {
       const uid = doc.data().uid;
 
       db.collection("users").doc(uid).get().then(userDoc => {
+        if (!userDoc.exists) return alert("User data not found!");
         const email = userDoc.data().email;
+
         auth.signInWithEmailAndPassword(email, password)
           .then(() => window.location.href = "forum.html")
-          .catch(err => alert(err.message));
-      });
-    }).catch(err => alert(err.message));
+          .catch(err => alert("Login failed: " + err.message));
+      }).catch(err => alert("Failed to fetch user data: " + err.message));
+    }).catch(err => alert("Failed to fetch username: " + err.message));
   });
 }
 
@@ -100,11 +102,13 @@ if (resetForm) {
       const uid = doc.data().uid;
 
       db.collection("users").doc(uid).get().then(userDoc => {
+        if (!userDoc.exists) return alert("User data not found!");
         const email = userDoc.data().email;
+
         auth.sendPasswordResetEmail(email)
           .then(() => alert("Password reset email sent to: " + email))
-          .catch(err => alert(err.message));
-      });
-    }).catch(err => alert(err.message));
+          .catch(err => alert("Failed to send reset email: " + err.message));
+      }).catch(err => alert("Failed to fetch user data: " + err.message));
+    }).catch(err => alert("Failed to fetch username: " + err.message));
   });
 }
