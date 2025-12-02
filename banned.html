@@ -11,28 +11,20 @@
 <body>
 <div class="site">
   <header class="header">
-    <div class="brand">
-      <h1>Ariselle</h1>
-      <span class="tag">Account Banned</span>
-    </div>
+    <div class="brand"><h1>Ariselle</h1><span class="tag">Account Banned</span></div>
   </header>
 
   <main class="main">
     <div class="panel" style="max-width:700px; margin:36px auto; text-align:left;">
-      <h2>Account Terminated</h2>
-      <div id="ban-details">
-        <p>Loading ban details...</p>
-      </div>
-
+      <h2>Your account has been banned</h2>
+      <div id="ban-details"><p>Loading ban details...</p></div>
       <div style="margin-top:18px;">
         <a href="index.html" class="btn">Return to Home</a>
       </div>
     </div>
   </main>
 
-  <footer class="footer">
-    <div class="wrap">&copy; 2025 Ariselle. All rights reserved.</div>
-  </footer>
+  <footer class="footer"><div class="wrap">&copy; 2025 Ariselle. All rights reserved.</div></footer>
 </div>
 
 <script>
@@ -46,11 +38,8 @@ const firebaseConfig = {
   measurementId: "G-PHLK2R0YSE"
 };
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const db = firebase.firestore();
-
-const urlParams = new URLSearchParams(window.location.search);
-const uidParam = urlParams.get("uid");
+const auth = firebase.auth();
 
 function escapeHtml(s) {
   if (typeof s !== "string") return s;
@@ -68,6 +57,7 @@ async function loadBanInfo(uid) {
     }
     const data = doc.data();
     const bannedAt = data.bannedAt ? data.bannedAt.toDate().toLocaleString() : "Unknown time";
+    const expiresAt = data.expiresAt ? data.expiresAt.toDate().toLocaleString() : null;
     const reason = data.reason || "No reason provided";
     const bannedBy = data.bannedBy || "Moderator";
     const appeal = data.appealInstructions || "Please contact support.";
@@ -76,6 +66,7 @@ async function loadBanInfo(uid) {
       <p><strong>Account UID:</strong> ${escapeHtml(uid)}</p>
       <p><strong>Banned by:</strong> ${escapeHtml(bannedBy)}</p>
       <p><strong>Banned at:</strong> ${escapeHtml(bannedAt)}</p>
+      ${expiresAt ? `<p><strong>Expires at:</strong> ${escapeHtml(expiresAt)}</p>` : `<p><strong>Expires at:</strong> Permanent</p>`}
       <p><strong>Reason:</strong><br>${escapeHtml(reason)}</p>
       <p><strong>Appeal instructions:</strong><br>${escapeHtml(appeal)}</p>
     `;
@@ -84,6 +75,9 @@ async function loadBanInfo(uid) {
     document.getElementById("ban-details").innerHTML = "<p>Failed to load ban details. Try again later.</p>";
   }
 }
+
+const urlParams = new URLSearchParams(window.location.search);
+const uidParam = urlParams.get("uid");
 
 if (uidParam) {
   loadBanInfo(uidParam);
