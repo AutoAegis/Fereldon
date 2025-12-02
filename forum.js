@@ -40,12 +40,12 @@ function loadTopics() {
 
 function createTopic() {
   if (!currentUser) return alert("You must be logged in!");
-
   const title = document.getElementById("new-topic").value.trim();
   const comment = document.getElementById("new-comment").value.trim();
   if (!title || !comment) return alert("Fill both fields!");
 
   const uid = currentUser.uid;
+
   if (!admins.includes(currentUser.displayName)) {
     const lastTime = cooldowns[uid]?.topic || 0;
     if (Date.now() - lastTime < 60000) return alert("Wait 1 minute between creating topics.");
@@ -54,21 +54,24 @@ function createTopic() {
 
   db.collection("users").doc(uid).get().then(userDoc => {
     const username = userDoc.data().username;
-    db.collection("topics").doc().set({
+
+    const topicRef = db.collection("topics").doc(); // FIX
+
+    topicRef.set({
       title,
       username,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(topicRef => {
-      topicRef.collection("comments").doc().set({
+    }).then(() => {
+      return topicRef.collection("comments").doc().set({
         username,
         text: comment,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(() => {
-        alert("Topic created!");
-        document.getElementById("new-topic").value = "";
-        document.getElementById("new-comment").value = "";
-        loadTopics();
       });
+    }).then(() => {
+      alert("Topic created!");
+      document.getElementById("new-topic").value = "";
+      document.getElementById("new-comment").value = "";
+      loadTopics();
     });
   });
 }
