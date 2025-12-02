@@ -46,33 +46,46 @@ function updateUserBox(user) {
 auth.onAuthStateChanged(user => updateUserBox(user));
 
 const registerForm = document.getElementById('register-form');
+
 if (registerForm) {
   registerForm.addEventListener('submit', e => {
     e.preventDefault();
+
     const email = document.getElementById('register-email').value.trim();
     const username = document.getElementById('register-username').value.trim();
     const password = document.getElementById('register-password').value.trim();
-    if (!email || !username || !password) return alert("Fill all fields!");
+
+    const acceptTOS = document.getElementById('accept-tos').checked;
+    const acceptPrivacy = document.getElementById('accept-privacy').checked;
+
+    if (!email || !username || !password)
+      return alert("Fill all fields!");
+
+    if (!acceptTOS)
+      return alert("You must accept the Terms of Service to continue.");
+
+    if (!acceptPrivacy)
+      return alert("You must accept the Data Privacy Policy to continue.");
 
     db.collection("usernames").doc(username).get().then(doc => {
       if (doc.exists) return alert("Username already taken!");
 
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(cred => {
-          // Default role = member
-          return db.collection("users").doc(cred.user.uid).set({
-            username,
-            email,
-            role: "member",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          }).then(() => {
-            return db.collection("usernames").doc(username).set({ uid: cred.user.uid });
+      auth.createUserWithEmailAndPassword(email, password).then(cred => {
+        db.collection("users").doc(cred.user.uid).set({
+          username,
+          email,
+          acceptedTOS: true,
+          acceptedPrivacy: true,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+          db.collection("usernames").doc(username).set({
+            uid: cred.user.uid
           }).then(() => {
             alert("Account created successfully!");
             window.location.href = "forum.html";
-          });
-        })
-        .catch(err => alert("Failed to create account: " + err.message));
+          }).catch(err => alert("Failed to save username mapping: " + err.message));
+        }).catch(err => alert("Failed to save user data: " + err.message));
+      }).catch(err => alert("Failed to create account: " + err.message));
     }).catch(err => alert("Failed to check username: " + err.message));
   });
 }
