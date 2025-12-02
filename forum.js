@@ -1,54 +1,66 @@
-const db = firebase.firestore();
 const auth = firebase.auth();
+const db = firebase.firestore();
 
-const admins = ["autoaegis"];
-
+const ADMIN_USERNAMES = ["autoaegis"];
 let currentTopicId = null;
 
-auth.onAuthStateChanged(user => {
-  if (!user) {
-    alert("You must be logged in to access the forum!");
-    window.location.href = "login.html";
-  } else {
-    loadTopics();
-  }
-});
+function updateUserBox(user) {
+  const userBox = document.getElementById("user-box");
+  if (!userBox) return;
 
-document.getElementById("create-topic-btn").onclick = createTopic;
-document.getElementById("add-comment-btn").onclick = addComment;
-document.getElementById("back-to-forum-btn").onclick = backToForum;
+  if (user) {
+    db.collection("users").doc(user.uid).get().then(doc => {
+      const username = doc.exists ? doc.data().username : "User";
+      userBox.innerHTML = `
+        <span id="welcome">Welcome, ${username}</span>
+        <a href="#" id="logout-btn">Logout</a>
+      `;
+      document.getElementById("logout-btn").onclick = () => {
+        auth.signOut().then(() => window.location.href = "index.html");
+      };
+      loadTopics();
+    }).catch(() => {
+      userBox.innerHTML = `<a href="login.html">Login</a><a href="register.html">Register</a>`;
+    });
+  } else {
+    userBox.innerHTML = `<a href="login.html">Login</a><a href="register.html">Register</a>`;
+    document.getElementById("forum-panel").style.display = "none";
+    document.getElementById("topic-detail-panel").style.display = "none";
+  }
+}
+
+auth.onAuthStateChanged(user => updateUserBox(user));
 
 function createTopic() {
   const title = document.getElementById("new-topic").value.trim();
   const comment = document.getElementById("new-comment").value.trim();
   if (!title || !comment) return alert("Fill both fields!");
 
-  const userId = auth.currentUser.uid;
+  const user = auth.currentUser;
+  if (!user) return alert("You must be logged in!");
 
-  db.collection("users").doc(userId).get().then(doc => {
+  db.collection("users").doc(user.uid).get().then(doc => {
     const username = doc.data().username;
-
-    const isAdmin = admins.includes(username);
+    const now = new Date();
 
     db.collection("topics")
-      .where("authorId", "==", userId)
+      .where("authorId", "==", user.uid)
       .orderBy("createdAt", "desc")
       .limit(1)
       .get()
       .then(snapshot => {
-        if (!snapshot.empty && !isAdmin) {
-          const last = snapshot.docs[0].data().createdAt.toDate();
-          const now = new Date();
-          if (now - last < 86400000) return alert("You can only create 1 topic per 24 hours!");
-        }
+        const lastTopicTime = snapshot.empty ? 0 : snapshot.docs[0].data().createdAt.toDate();
+        const isAdmin = ADMIN_USERNAMES.includes(username);
+        if (!isAdmin && now - lastTopicTime < 86400000)
+          return alert("You can only create 1 topic per 24 hours!");
 
         db.collection("topics").add({
           title,
           author: username,
-          authorId: userId,
+          authorId: user.uid,
           comments: [{
             user: username,
-            userId,
+            userId: user.uid,
             text: comment,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
           }],
@@ -64,6 +76,8 @@ function createTopic() {
 
 function loadTopics() {
   const container = document.getElementById("topics");
+  if (!container) return;
+
   container.innerHTML = "";
 
   db.collection("topics").orderBy("createdAt", "desc").get().then(snapshot => {
@@ -72,12 +86,19 @@ function loadTopics() {
       const div = document.createElement("div");
       div.className = "topic";
       div.innerHTML = `<strong>${data.title}</strong> (${data.comments.length} comments)`;
-
-      if (admins.includes(data.author)) {
-        div.innerHTML += ` <button class="btn" onclick="deleteTopic('${doc.id}')">Delete</button>`;
-      }
-
       div.onclick = () => openTopic(doc.id, data.title, data.comments);
+      if (auth.currentUser && ADMIN_USERNAMES.includes(data.author)) {
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.style.marginLeft = "10px";
+        delBtn.onclick = e => {
+          e.stopPropagation();
+          if (confirm("Delete this topic?")) {
+            db.collection("topics").doc(doc.id).delete().then(loadTopics);
+          }
+        };
+        div.appendChild(delBtn);
+      }
       container.appendChild(div);
     });
   });
@@ -96,11 +117,20 @@ function openTopic(id, title, comments) {
     const el = document.createElement("div");
     el.className = "comment";
     el.innerHTML = `<strong>${c.user}:</strong> ${c.text}`;
-
-    if (admins.includes(c.user)) {
-      el.innerHTML += ` <button class="btn" onclick="deleteComment('${currentTopicId}', ${comments.indexOf(c)})">Delete</button>`;
+    if (auth.currentUser && ADMIN_USERNAMES.includes(c.user)) {
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "Delete";
+      delBtn.style.marginLeft = "8px";
+      delBtn.onclick = e => {
+        e.stopPropagation();
+        if (confirm("Delete this comment?")) {
+          const topicRef = db.collection("topics").doc(currentTopicId);
+          const newComments = comments.filter(comment => comment !== c);
+          topicRef.update({ comments: newComments }).then(() => openTopic(currentTopicId, title, newComments));
+        }
+      };
+      el.appendChild(delBtn);
     }
-
     commentsDiv.appendChild(el);
   });
 }
@@ -108,34 +138,22 @@ function openTopic(id, title, comments) {
 function addComment() {
   const text = document.getElementById("comment-input").value.trim();
   if (!text) return alert("Write something!");
+  const user = auth.currentUser;
+  if (!user) return alert("You must be logged in!");
 
   const topicRef = db.collection("topics").doc(currentTopicId);
-  const userId = auth.currentUser.uid;
-
-  db.collection("users").doc(userId).get().then(doc => {
+  db.collection("users").doc(user.uid).get().then(doc => {
     const username = doc.data().username;
-    const isAdmin = admins.includes(username);
     const now = new Date();
-
-    topicRef.get().then(doc => {
-      if (!doc.exists) return alert("Topic not found!");
-
-      const data = doc.data();
+    topicRef.get().then(topicDoc => {
+      if (!topicDoc.exists) return alert("Topic not found!");
+      const data = topicDoc.data();
       const comments = data.comments || [];
-      const userComments = comments.filter(c => c.userId === userId);
-
-      if (userComments.length && !isAdmin) {
-        const lastTime = userComments[userComments.length - 1].timestamp.toDate();
-        if (now - lastTime < 86400000) return alert("You can only comment once per 24 hours!");
-      }
-
-      comments.push({
-        user: username,
-        userId,
-        text,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      });
-
+      const lastComment = comments.filter(c => c.userId === user.uid).slice(-1)[0];
+      const isAdmin = ADMIN_USERNAMES.includes(username);
+      if (!isAdmin && lastComment && now - lastComment.timestamp.toDate() < 86400000)
+        return alert("You can only comment once per 24 hours!");
+      comments.push({ user: username, userId: user.uid, text, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
       topicRef.update({ comments }).then(() => {
         document.getElementById("comment-input").value = "";
         openTopic(currentTopicId, data.title, comments);
@@ -148,19 +166,4 @@ function backToForum() {
   document.getElementById("forum-panel").style.display = "block";
   document.getElementById("topic-detail-panel").style.display = "none";
   loadTopics();
-}
-
-function deleteTopic(topicId) {
-  if (!confirm("Are you sure you want to delete this topic?")) return;
-  db.collection("topics").doc(topicId).delete().then(() => loadTopics());
-}
-
-function deleteComment(topicId, index) {
-  const topicRef = db.collection("topics").doc(topicId);
-  topicRef.get().then(doc => {
-    if (!doc.exists) return;
-    const comments = doc.data().comments || [];
-    comments.splice(index, 1);
-    topicRef.update({ comments }).then(() => openTopic(topicId, doc.data().title, comments));
-  });
 }
