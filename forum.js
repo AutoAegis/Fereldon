@@ -245,6 +245,53 @@ async function handleUnbanClick(evt) {
   }
 }
 
+let selectedUID = null;
+
+document.addEventListener("click", e => {
+    if (e.target.classList.contains("ban-btn")) {
+        selectedUID = e.target.dataset.uid;
+        document.getElementById("ban-modal").style.display = "block";
+    }
+});
+
+document.getElementById("cancel-ban").onclick = () => {
+    selectedUID = null;
+    document.getElementById("ban-modal").style.display = "none";
+};
+
+document.getElementById("confirm-ban").onclick = () => {
+    const reason = document.getElementById("ban-reason").value.trim();
+    const duration = document.getElementById("ban-duration").value;
+
+    if (!reason) return alert("Please enter a reason.");
+
+    const now = Date.now();
+    let expiresAt = null;
+
+    if (duration !== "permanent") {
+        const ms = {
+            "1h": 3600000,
+            "24h": 86400000,
+            "7d": 604800000,
+            "30d": 2592000000
+        }[duration];
+
+        expiresAt = now + ms;
+    }
+
+    db.collection("bans").doc(selectedUID).set({
+        uid: selectedUID,
+        reason,
+        bannedBy: auth.currentUser.uid,
+        createdAt: now,
+        expiresAt: expiresAt || null,
+        active: true
+    }).then(() => {
+        alert("User banned successfully.");
+        document.getElementById("ban-modal").style.display = "none";
+    });
+};
+
 function escapeHtml(s) {
   if (typeof s !== "string") return s;
   return s.replace(/[&<>"']/g, function (m) {
