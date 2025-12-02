@@ -73,7 +73,7 @@ async function handleBanClick(evt) {
   if (!isAdmin()) return alert("Only admins can ban users.");
 
   const reason = prompt("Enter ban reason (short):");
-  if (reason === null) return; // cancelled
+  if (reason === null) return; 
 
   const appeal = prompt("Appeal instructions (optional): Leave blank for default.");
   const appealInstructions = appeal ? appeal : "To appeal, contact support or open a ticket on our Discord.";
