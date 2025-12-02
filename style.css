@@ -509,3 +509,15 @@ body {
   background: linear-gradient(180deg, var(--accent), var(--accent-dark));
   color: #111;
 }
+
+.admin-glow {
+  color: #ff4444;
+  text-shadow: 0 0 6px #ff0000;
+  font-weight: bold;
+}
+
+.tester-glow {
+  color: #44aaff;
+  text-shadow: 0 0 6px #0088ff;
+  font-weight: bold;
+}
