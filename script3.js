@@ -1,114 +1,174 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyDtXW6okJbrP1pDbV_ICrdSKXhI30t5AJQ",
-  authDomain: "ariselle.firebaseapp.com",
-  projectId: "ariselle",
-  storageBucket: "ariselle.firebasestorage.app",
-  messagingSenderId: "1086998280524",
-  appId: "1:1086998280524:web:094e3a0c6ece0af507b7e9",
-  measurementId: "G-PHLK2R0YSE"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const db = firebase.firestore();
+const auth = firebase.auth();
 
-function updateUserBox(user) {
-  const userBox = document.getElementById('user-box');
-  if (!userBox) return;
-
-  if (user) {
-    db.collection("users").doc(user.uid).get().then(doc => {
-      const username = doc.exists ? doc.data().username : "User";
-      userBox.innerHTML = `
-        <span id="welcome">Welcome, ${username}</span>
-        <a href="#" id="logout-btn">Logout</a>
-      `;
-      document.getElementById("logout-btn").onclick = () => {
-        auth.signOut().then(() => window.location.href = "index.html");
-      };
-    }).catch(() => {
-      userBox.innerHTML = `<a href="login.html">Login</a><a href="register.html">Register</a>`;
-    });
-  } else {
-    userBox.innerHTML = `<a href="login.html">Login</a><a href="register.html">Register</a>`;
+function getRoleBadge(role) {
+  if (role === "admin") {
+    return `<span class="role-badge admin-badge">Admin</span>`;
   }
+  if (role === "tester") {
+    return `<span class="role-badge tester-badge">Tester</span>`;
+  }
+  return "";
 }
 
-auth.onAuthStateChanged(user => updateUserBox(user));
+function loadTopics() {
+  const topicList = document.getElementById("topic-list");
+  if (!topicList) return;
 
-const registerForm = document.getElementById('register-form');
-if (registerForm) {
-  registerForm.addEventListener('submit', e => {
+  db.collection("forumTopics")
+    .orderBy("createdAt", "desc")
+    .onSnapshot(snapshot => {
+      topicList.innerHTML = "";
+      snapshot.forEach(doc => {
+        const topic = doc.data();
+
+        const item = document.createElement("div");
+        item.classList.add("topic-item");
+
+        item.innerHTML = `
+          <h3>${topic.title}</h3>
+          <p>${topic.content}</p>
+
+          <div class="topic-meta">
+            Posted by <strong>${topic.username}</strong>
+            ${getRoleBadge(topic.role || "user")}
+          </div>
+
+          <a href="topic.html?id=${doc.id}" class="view-topic">Open</a>
+          <div class="delete-topic-container"></div>
+        `;
+
+        topicList.appendChild(item);
+        
+        auth.onAuthStateChanged(user => {
+          if (!user) return;
+
+          db.collection("users").doc(user.uid).get().then(profile => {
+            const role = profile.data()?.role || "user";
+
+            if (role === "admin") {
+              const delBtn = document.createElement("button");
+              delBtn.textContent = "Delete Topic";
+              delBtn.classList.add("delete-btn", "admin-delete");
+
+              delBtn.onclick = () =>
+                deleteTopic(doc.id);
+
+              item.querySelector(".delete-topic-container").appendChild(delBtn);
+            }
+          });
+        });
+
+      });
+    });
+}
+
+function deleteTopic(topicId) {
+  if (!confirm("Are you sure you want to delete this topic?")) return;
+
+  db.collection("forumTopics").doc(topicId).delete()
+    .then(() => alert("Topic deleted"))
+    .catch(err => alert("Failed: " + err.message));
+}
+
+function loadComments(topicId) {
+  const commentList = document.getElementById("comment-list");
+  if (!commentList) return;
+
+  db.collection("forumTopics")
+    .doc(topicId)
+    .collection("comments")
+    .orderBy("createdAt", "asc")
+    .onSnapshot(snapshot => {
+      commentList.innerHTML = "";
+      snapshot.forEach(doc => {
+        const c = doc.data();
+
+        const div = document.createElement("div");
+        div.classList.add("comment-item");
+
+        div.innerHTML = `
+          <p>${c.text}</p>
+          <div class="comment-meta">
+            <strong>${c.username}</strong>
+            ${getRoleBadge(c.role || "user")}
+          </div>
+          <div class="delete-comment-container"></div>
+        `;
+
+        commentList.appendChild(div);
+
+        auth.onAuthStateChanged(user => {
+          if (!user) return;
+
+          db.collection("users").doc(user.uid).get().then(profile => {
+            const role = profile.data()?.role || "user";
+
+            if (role === "admin" || role === "tester") {
+              const delBtn = document.createElement("button");
+              delBtn.textContent = "Delete Comment";
+              delBtn.classList.add("delete-btn");
+
+              if (role === "admin") delBtn.classList.add("admin-delete");
+              if (role === "tester") delBtn.classList.add("tester-delete");
+
+              delBtn.onclick = () =>
+                deleteComment(topicId, doc.id);
+
+              div.querySelector(".delete-comment-container").appendChild(delBtn);
+            }
+          });
+        });
+
+      });
+    });
+}
+
+function deleteComment(topicId, commentId) {
+  if (!confirm("Delete this comment?")) return;
+
+  db.collection("forumTopics")
+    .doc(topicId)
+    .collection("comments")
+    .doc(commentId)
+    .delete()
+    .then(() => alert("Comment deleted"))
+    .catch(err => alert("Failed: " + err.message));
+}
+
+function setupTopicCreation() {
+  const form = document.getElementById("create-topic-form");
+  if (!form) return;
+
+  form.addEventListener("submit", e => {
     e.preventDefault();
-    const email = document.getElementById('register-email').value.trim();
-    const username = document.getElementById('register-username').value.trim();
-    const password = document.getElementById('register-password').value.trim();
-    if (!email || !username || !password) return alert("Fill all fields!");
 
-    db.collection("usernames").doc(username).get().then(doc => {
-      if (doc.exists) return alert("Username already taken!");
+    const title = document.getElementById("topic-title").value.trim();
+    const content = document.getElementById("topic-content").value.trim();
 
-      auth.createUserWithEmailAndPassword(email, password).then(cred => {
-        db.collection("users").doc(cred.user.uid).set({
-          username,
-          email,
+    auth.onAuthStateChanged(user => {
+      if (!user) return alert("Login required");
+
+      db.collection("users").doc(user.uid).get().then(profile => {
+        const data = profile.data();
+
+        db.collection("forumTopics").add({
+          title,
+          content,
+          uid: user.uid,
+          username: data.username,
+          role: data.role || "user",
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => {
-          db.collection("usernames").doc(username).set({
-            uid: cred.user.uid
-          }).then(() => {
-            alert("Account created successfully!");
-            window.location.href = "forum.html";
-          }).catch(err => alert("Failed to save username mapping: " + err.message));
-        }).catch(err => alert("Failed to save user data: " + err.message));
-      }).catch(err => alert("Failed to create account: " + err.message));
-    }).catch(err => alert("Failed to check username: " + err.message));
+          alert("Topic created!");
+          window.location.href = "forum.html";
+        });
+
+      });
+    });
   });
 }
 
-const loginForm = document.getElementById('login-form');
-if (loginForm) {
-  loginForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const username = document.getElementById('login-username').value.trim();
-    const password = document.getElementById('login-password').value.trim();
-    if (!username || !password) return alert("Fill both fields!");
-
-    db.collection("usernames").doc(username).get().then(doc => {
-      if (!doc.exists) return alert("Username not found!");
-      const uid = doc.data().uid;
-
-      db.collection("users").doc(uid).get().then(userDoc => {
-        if (!userDoc.exists) return alert("User data not found!");
-        const email = userDoc.data().email;
-
-        auth.signInWithEmailAndPassword(email, password)
-          .then(() => window.location.href = "forum.html")
-          .catch(err => alert("Login failed: " + err.message));
-      }).catch(err => alert("Failed to fetch user data: " + err.message));
-    }).catch(err => alert("Failed to fetch username: " + err.message));
-  });
-}
-
-const resetForm = document.getElementById('reset-form');
-if (resetForm) {
-  resetForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const username = document.getElementById("reset-username").value.trim();
-    if (!username) return alert("Enter your username!");
-
-    db.collection("usernames").doc(username).get().then(doc => {
-      if (!doc.exists) return alert("Username not found!");
-      const uid = doc.data().uid;
-
-      db.collection("users").doc(uid).get().then(userDoc => {
-        if (!userDoc.exists) return alert("User data not found!");
-        const email = userDoc.data().email;
-
-        auth.sendPasswordResetEmail(email)
-          .then(() => alert("Password reset email sent to: " + email))
-          .catch(err => alert("Failed to send reset email: " + err.message));
-      }).catch(err => alert("Failed to fetch user data: " + err.message));
-    }).catch(err => alert("Failed to fetch username: " + err.message));
-  });
-}
+window.loadTopics = loadTopics;
+window.loadComments = loadComments;
+window.setupTopicCreation = setupTopicCreation;
