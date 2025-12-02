@@ -48,7 +48,7 @@ async function computeFingerprint() {
 }
 
 function updateUserBox(user) {
-  const userBox = document.getElementById("user-box");
+  const userBox = document.getElementById('user-box');
   if (!userBox) return;
 
   if (user) {
@@ -57,10 +57,8 @@ function updateUserBox(user) {
       const username = data.username || "User";
       const role = data.role || "member";
       window.userRole = role;
-
       const glow = role === "admin" ? "admin-glow" :
                    role === "tester" ? "tester-glow" : "";
-
       userBox.innerHTML = `
         <span id="welcome" class="${glow}">Welcome, ${username}</span>
         <a href="#" id="logout-btn">Logout</a>
@@ -80,7 +78,6 @@ function updateUserBox(user) {
 
 auth.onAuthStateChanged(async user => {
   updateUserBox(user);
-
   if (!user) return;
 
   const path = window.location.pathname.split("/").pop();
@@ -91,19 +88,19 @@ auth.onAuthStateChanged(async user => {
     if (banSnap.exists) {
       try {
         const fp = await computeFingerprint();
-        const devRef = db.collection("bannedDevices").doc(fp);
-        const devSnap = await devRef.get();
-        if (!devSnap.exists) {
-          await devRef.set({
-            bannedUid: user.uid,
-            recordedAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        } else {
+        if (fp) {
+          const devRef = db.collection("bannedDevices").doc(fp);
+          const devSnap = await devRef.get();
+          if (!devSnap.exists) {
+            await devRef.set({
+              bannedUid: user.uid,
+              recordedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          }
         }
       } catch (e) {
-        console.warn("Failed to compute fingerprint:", e);
+        console.warn("Fingerprint recording failed:", e);
       }
-
       if (!onBannedPage) {
         window.location.href = `banned.html?uid=${encodeURIComponent(user.uid)}`;
       }
@@ -112,19 +109,18 @@ auth.onAuthStateChanged(async user => {
   } catch (err) {
     console.error("Ban check failed:", err);
   }
-
 });
 
-const registerForm = document.getElementById("register-form");
+const registerForm = document.getElementById('register-form');
 if (registerForm) {
-  registerForm.addEventListener("submit", e => {
+  registerForm.addEventListener('submit', e => {
     e.preventDefault();
-    const email = document.getElementById("register-email").value.trim();
-    const username = document.getElementById("register-username").value.trim();
-    const password = document.getElementById("register-password").value.trim();
+    const email = document.getElementById('register-email').value.trim();
+    const username = document.getElementById('register-username').value.trim();
+    const password = document.getElementById('register-password').value.trim();
 
-    const acceptTOSEl = document.getElementById("accept-tos");
-    const acceptPrivacyEl = document.getElementById("accept-privacy");
+    const acceptTOSEl = document.getElementById('accept-tos');
+    const acceptPrivacyEl = document.getElementById('accept-privacy');
     if (acceptTOSEl && !acceptTOSEl.checked) return alert("You must accept the Terms of Service.");
     if (acceptPrivacyEl && !acceptPrivacyEl.checked) return alert("You must accept the Data Privacy Policy.");
 
@@ -150,12 +146,12 @@ if (registerForm) {
   });
 }
 
-const loginForm = document.getElementById("login-form");
+const loginForm = document.getElementById('login-form');
 if (loginForm) {
-  loginForm.addEventListener("submit", async (e) => {
+  loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const username = document.getElementById("login-username").value.trim();
-    const password = document.getElementById("login-password").value.trim();
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value.trim();
     if (!username || !password) return alert("Fill both fields!");
 
     try {
@@ -164,18 +160,14 @@ if (loginForm) {
       const uid = nameSnap.data().uid;
 
       let fp = "";
-      try {
-        fp = await computeFingerprint();
-      } catch (err) {
-        console.warn("Fingerprint failed", err);
-      }
+      try { fp = await computeFingerprint(); } catch (err) { console.warn("Fingerprint failed", err); }
 
       if (fp) {
         const devSnap = await db.collection("bannedDevices").doc(fp).get();
         if (devSnap.exists) {
           const mappedUid = devSnap.data().bannedUid;
           if (mappedUid && mappedUid !== uid) {
-            return alert("This device is associated with a banned account and cannot be used to sign into other accounts.");
+            return alert("This device is associated with a banned account and cannot sign into other accounts.");
           }
         }
       }
@@ -194,9 +186,7 @@ if (loginForm) {
               bannedUid: uid,
               recordedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-          } catch (e) {
-            console.warn("Failed to record banned device:", e);
-          }
+          } catch (e) { console.warn("Failed to record banned device:", e); }
         }
         window.location.href = `banned.html?uid=${encodeURIComponent(uid)}`;
       } else {
@@ -208,9 +198,9 @@ if (loginForm) {
   });
 }
 
-const resetForm = document.getElementById("reset-form");
+const resetForm = document.getElementById('reset-form');
 if (resetForm) {
-  resetForm.addEventListener("submit", e => {
+  resetForm.addEventListener('submit', e => {
     e.preventDefault();
     const username = document.getElementById("reset-username").value.trim();
     if (!username) return alert("Enter your username!");
