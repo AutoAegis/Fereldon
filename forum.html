@@ -39,7 +39,7 @@
 
   <section class="hero">
     <h1>The Forum</h1>
-    <p>Topic and comments on Ariselle-related discussions.</p>
+    <p>Topic and comments on Ariselle-related stuff.</p>
   </section>
   
   <main class="main">
@@ -47,7 +47,7 @@
       <h2>Create New Topic</h2>
       <input type="text" id="new-topic" placeholder="Topic Title" class="input-field"><br><br>
       <input type="text" id="new-comment" placeholder="Initial Comment" class="input-field"><br><br>
-      <button class="btn" onclick="createTopic()">Create Topic</button>
+      <button class="btn" id="create-topic-btn">Create Topic</button>
 
       <h3 style="margin-top:20px;">All Topics</h3>
       <div id="topics"></div>
@@ -57,8 +57,8 @@
       <h2 id="topic-title"></h2>
       <div id="comments" style="margin-top:10px;"></div>
       <input type="text" id="comment-input" placeholder="Write a comment" class="input-field" style="margin-top:10px;">
-      <button class="btn" onclick="addComment()">Post Comment</button>
-      <button class="btn" onclick="backToForum()" style="margin-top:10px;">Back to Forum</button>
+      <button class="btn" id="add-comment-btn">Post Comment</button>
+      <button class="btn" id="back-to-forum-btn" style="margin-top:10px;">Back to Forum</button>
     </div>
   </main>
 
@@ -67,8 +67,8 @@
   </footer>
 </div>
 
+<script src="script3.js"></script>
 <script src="forum.js"></script>
 <script src="script.js"></script>
-<script src="script3.js"></script>
 </body>
 </html>
