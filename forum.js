@@ -1,188 +1,132 @@
+const ADMINS = ["autoaegis"];
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-const ADMIN_USERS = ["autoaegis"];
-const TOPIC_COOLDOWN = 24 * 60 * 60 * 1000; 
-const COMMENT_COOLDOWN = 60 * 60 * 1000;
+let currentUser = null;
+let currentUsername = null;
+let lastTopicPost = 0;
+let lastCommentPost = 0;
 
-function updateUserBox(user) {
-  const userBox = document.getElementById('user-box');
-  if (!userBox) return;
+auth.onAuthStateChanged(async user => {
+    if (!user) {
+        document.getElementById("user-info").innerText = "Not logged in.";
+        return;
+    }
 
-  if (user) {
-    db.collection("users").doc(user.uid).get().then(doc => {
-      const username = doc.exists ? doc.data().username : "User";
-      userBox.innerHTML = `
-        <span id="welcome">Welcome, ${username}</span>
-        <a href="#" id="logout-btn">Logout</a>
-      `;
-      document.getElementById("logout-btn").onclick = () => {
-        auth.signOut().then(() => window.location.href = "index.html");
-      };
+    currentUser = user;
+
+    const doc = await db.collection("users").doc(user.uid).get();
+    currentUsername = doc.exists ? doc.data().username : "Unknown";
+
+    document.getElementById("user-info").innerHTML = "Logged in as: <b>" + currentUsername + "</b>";
+    loadTopics();
+});
+
+async function createTopic() {
+    if (!currentUser) return alert("You must be logged in.");
+
+    const title = document.getElementById("topic-title").value.trim();
+    const content = document.getElementById("topic-content").value.trim();
+    if (!title || !content) return alert("Fill in all fields.");
+
+    const isAdmin = ADMINS.includes(currentUsername);
+    if (!isAdmin && Date.now() - lastTopicPost < 30000) return alert("Wait 30 seconds before posting another topic.");
+
+    await db.collection("topics").add({
+        title,
+        content,
+        author: currentUsername,
+        timestamp: Date.now()
     });
-  } else {
-    userBox.innerHTML = `<a href="login.html">Login</a><a href="register.html">Register</a>`;
-  }
-}
 
-auth.onAuthStateChanged(user => updateUserBox(user));
-
-let currentTopicId = null;
-
-function createTopic() {
-  const title = document.getElementById('new-topic').value.trim();
-  const comment = document.getElementById('new-comment').value.trim();
-  if (!title || !comment) return alert("Fill both fields!");
-
-  const userId = auth.currentUser.uid;
-
-  db.collection("users").doc(userId).get().then(doc => {
-    const username = doc.data().username;
-
-    db.collection("topics")
-      .where("authorId", "==", userId)
-      .orderBy("createdAt", "desc")
-      .limit(1)
-      .get()
-      .then(snapshot => {
-        if (!snapshot.empty) {
-          const lastCreated = snapshot.docs[0].data().createdAt.toDate();
-          if (Date.now() - lastCreated.getTime() < TOPIC_COOLDOWN) {
-            return alert("You can only create 1 topic per 24 hours!");
-          }
-        }
-
-        db.collection("topics").add({
-          title,
-          author: username,
-          authorId: userId,
-          comments: [{
-            user: username,
-            userId,
-            text: comment,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-          }],
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-          document.getElementById('new-topic').value = '';
-          document.getElementById('new-comment').value = '';
-          loadTopics();
-        });
-      });
-  });
+    lastTopicPost = Date.now();
+    document.getElementById("topic-title").value = "";
+    document.getElementById("topic-content").value = "";
 }
 
 function loadTopics() {
-  const container = document.getElementById('topics');
-  if (!container) return;
-  container.innerHTML = '';
+    db.collection("topics").orderBy("timestamp", "desc")
+        .onSnapshot(snapshot => {
+            const container = document.getElementById("topics");
+            container.innerHTML = "";
 
-  db.collection("topics").orderBy("createdAt", "desc").get().then(snapshot => {
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const div = document.createElement('div');
-      div.className = 'topic';
-      div.style.background = ADMIN_USERS.includes(data.authorId) ? 'rgba(217, 164, 65, 0.15)' : '';
-      div.innerHTML = `<strong>${data.title}</strong> (${data.comments.length} comments)`;
+            snapshot.forEach(doc => {
+                const t = doc.data();
+                const id = doc.id;
 
-      if (ADMIN_USERS.includes(auth.currentUser?.uid) || data.authorId === auth.currentUser?.uid) {
-        const delBtn = document.createElement('button');
-        delBtn.textContent = 'Delete';
-        delBtn.onclick = e => {
-          e.stopPropagation();
-          if (confirm("Are you sure you want to delete this topic?")) {
-            db.collection("topics").doc(doc.id).delete().then(loadTopics);
-          }
-        };
-        div.appendChild(delBtn);
-      }
+                const div = document.createElement("div");
+                div.className = "topic";
 
-      div.onclick = () => openTopic(doc.id, data.title, data.comments);
-      container.appendChild(div);
-    });
-  });
+                div.innerHTML = `
+                    <h3>${t.title}</h3>
+                    <p>${t.content}</p>
+                    <small>Posted by ${t.author}</small>
+                    ${ADMINS.includes(currentUsername) ? `<span class="delete-btn" onclick="deleteTopic('${id}')">[delete]</span>` : ""}
+                    <br><br>
+
+                    <textarea id="comment-${id}" placeholder="Write a comment..." rows="2" cols="50"></textarea>
+                    <br>
+                    <button onclick="postComment('${id}')">Comment</button>
+
+                    <div id="comments-${id}"></div>
+                `;
+
+                container.appendChild(div);
+                loadComments(id);
+            });
+        });
 }
 
-function openTopic(id, title, comments) {
-  currentTopicId = id;
-  document.getElementById('forum-panel').style.display = "none";
-  document.getElementById('topic-detail-panel').style.display = "block";
-  document.getElementById('topic-title').innerText = title;
-
-  const commentsDiv = document.getElementById('comments');
-  commentsDiv.innerHTML = '';
-  comments.forEach((c, idx) => {
-    const el = document.createElement('div');
-    el.className = "comment";
-    el.style.background = ADMIN_USERS.includes(c.userId) ? 'rgba(217, 164, 65, 0.1)' : '';
-    el.innerHTML = `<strong>${c.user}:</strong> ${c.text}`;
-
-    if (ADMIN_USERS.includes(auth.currentUser?.uid) || c.userId === auth.currentUser?.uid) {
-      const delBtn = document.createElement('button');
-      delBtn.textContent = 'Delete';
-      delBtn.onclick = e => {
-        e.stopPropagation();
-        if (confirm("Delete this comment?")) {
-          comments.splice(idx, 1);
-          db.collection("topics").doc(id).update({ comments }).then(() => openTopic(id, title, comments));
-        }
-      };
-      el.appendChild(delBtn);
-    }
-
-    commentsDiv.appendChild(el);
-  });
+async function deleteTopic(id) {
+    if (!ADMINS.includes(currentUsername)) return;
+    await db.collection("topics").doc(id).delete();
+    const comments = await db.collection("topics").doc(id).collection("comments").get();
+    comments.forEach(c => c.ref.delete());
 }
 
-function addComment() {
-  const text = document.getElementById('comment-input').value.trim();
-  if (!text) return alert("Write something!");
+async function postComment(topicId) {
+    if (!currentUser) return alert("You must be logged in.");
 
-  const topicRef = db.collection("topics").doc(currentTopicId);
-  const userId = auth.currentUser.uid;
+    const text = document.getElementById("comment-" + topicId).value.trim();
+    if (!text) return alert("Enter a comment.");
 
-  db.collection("users").doc(userId).get().then(doc => {
-    const username = doc.data().username;
+    const isAdmin = ADMINS.includes(currentUsername);
+    if (!isAdmin && Date.now() - lastCommentPost < 30000) return alert("Wait 30 seconds before commenting again.");
 
-    topicRef.get().then(doc => {
-      if (!doc.exists) return alert("Topic not found!");
-      const data = doc.data();
-      const comments = data.comments || [];
-      const lastComment = comments.filter(c => c.userId === userId).pop();
-
-      if (lastComment) {
-        const lastTime = lastComment.timestamp.toDate();
-        if (Date.now() - lastTime.getTime() < COMMENT_COOLDOWN) {
-          return alert("You can only comment once per hour!");
-        }
-      }
-
-      comments.push({
-        user: username,
-        userId,
+    await db.collection("topics").doc(topicId).collection("comments").add({
         text,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      });
-
-      topicRef.update({ comments }).then(() => {
-        document.getElementById('comment-input').value = '';
-        openTopic(currentTopicId, data.title, comments);
-      });
+        author: currentUsername,
+        timestamp: Date.now()
     });
-  });
+
+    lastCommentPost = Date.now();
+    document.getElementById("comment-" + topicId).value = "";
 }
 
-function backToForum() {
-  document.getElementById('forum-panel').style.display = "block";
-  document.getElementById('topic-detail-panel').style.display = "none";
-  loadTopics();
+function loadComments(topicId) {
+    db.collection("topics").doc(topicId).collection("comments")
+        .orderBy("timestamp")
+        .onSnapshot(snapshot => {
+            const container = document.getElementById("comments-" + topicId);
+            container.innerHTML = "";
+
+            snapshot.forEach(doc => {
+                const c = doc.data();
+                const id = doc.id;
+
+                const div = document.createElement("div");
+                div.className = "comment";
+                div.innerHTML = `
+                    <b>${c.author}:</b> ${c.text}
+                    ${ADMINS.includes(currentUsername) ? `<span class="delete-btn" onclick="deleteComment('${topicId}', '${id}')">[delete]</span>` : ""}
+                `;
+
+                container.appendChild(div);
+            });
+        });
 }
 
-auth.onAuthStateChanged(user => {
-  if (!user) {
-    alert("You must be logged in to access the forum!");
-    window.location.href = "login.html";
-  } else {
-    loadTopics();
-  }
-});
+async function deleteComment(topicId, commentId) {
+    if (!ADMINS.includes(currentUsername)) return;
+    await db.collection("topics").doc(topicId).collection("comments").doc(commentId).delete();
+}
