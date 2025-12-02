@@ -121,10 +121,8 @@ if (loginForm) {
 
         auth.signInWithEmailAndPassword(email, password)
           .then(async () => {
-            // signed in — check banned collection
             const banDoc = await db.collection("banned").doc(uid).get();
             if (banDoc.exists) {
-              // redirect to ban page
               window.location.href = `banned.html?uid=${encodeURIComponent(uid)}`;
             } else {
               window.location.href = "forum.html";
