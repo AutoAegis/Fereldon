@@ -27,7 +27,6 @@ auth.onAuthStateChanged(async user => {
 });
 
 function isAdmin() { return currentUserRole === "admin"; }
-function isTester() { return currentUserRole === "tester"; }
 
 function roleClass(role) {
   if (role === "admin") return "admin-glow";
@@ -46,9 +45,17 @@ function loadTopics() {
       const titleHtml = `<strong>${escapeHtml(data.title)}</strong>`;
       const usernameHtml = `<span class="${roleClass(data.role)}">${escapeHtml(data.username)}</span>`;
       const dateHtml = `<small>${data.createdAt?.toDate().toLocaleString() || ""}</small>`;
-      const deleteBtn = isAdmin() ? `<button class="topic-delete-btn admin-delete" onclick="event.stopPropagation(); deleteTopic('${doc.id}')">Delete</button>` : "";
 
-      div.innerHTML = `${titleHtml} by ${usernameHtml} <br> ${dateHtml} ${deleteBtn}`;
+      let adminControls = "";
+      if (isAdmin()) {
+        adminControls += `<button class="topic-delete-btn admin-delete" onclick="event.stopPropagation(); deleteTopic('${doc.id}')">Delete</button>`;
+        if (data.uid) {
+          adminControls += `<button class="ban-btn admin-delete" data-uid="${data.uid}" onclick="event.stopPropagation(); handleBanClick(event)">Ban User</button>`;
+          adminControls += `<button class="unban-btn admin-delete" data-uid="${data.uid}" onclick="event.stopPropagation(); handleUnbanClick(event)">Unban User</button>`;
+        }
+      }
+
+      div.innerHTML = `${titleHtml} by ${usernameHtml} <br> ${dateHtml} ${adminControls}`;
       div.onclick = () => openTopic(doc.id, data.title);
       topicsDiv.appendChild(div);
     });
@@ -120,17 +127,26 @@ function loadComments() {
     snapshot.forEach(doc => {
       const data = doc.data();
       const roleCls = roleClass(data.role);
-      const canDelete = isAdmin() || isTester() || (currentUser && currentUser.uid === data.uid);
+      const canDelete = isAdmin() || (currentUser && currentUser.uid === data.uid);
 
       const div = document.createElement("div");
       div.className = "trello-card comment";
 
-      const deleteHtml = canDelete ? `<button class="delete-btn ${isAdmin() ? 'admin-delete' : (isTester() ? 'tester-delete' : '')}" onclick="deleteComment('${doc.id}')">Delete</button>` : "";
+      let adminControls = "";
+      if (isAdmin()) {
+        if (data.uid) {
+          adminControls += `<button class="ban-btn admin-delete" data-uid="${data.uid}" onclick="handleBanClick(event)">Ban User</button>`;
+          adminControls += `<button class="unban-btn admin-delete" data-uid="${data.uid}" onclick="handleUnbanClick(event)">Unban User</button>`;
+        }
+        adminControls += canDelete ? `<button class="delete-btn admin-delete" onclick="deleteComment('${doc.id}')">Delete</button>` : "";
+      } else {
+        if (canDelete) adminControls += `<button class="delete-btn" onclick="deleteComment('${doc.id}')">Delete</button>`;
+      }
 
       div.innerHTML = `
         <strong class="${roleCls}">${escapeHtml(data.username)}</strong>: ${escapeHtml(data.text)} <br>
         <small>${data.createdAt?.toDate().toLocaleString() || ""}</small>
-        ${deleteHtml}
+        ${adminControls}
       `;
       commentsDiv.appendChild(div);
     });
@@ -143,12 +159,11 @@ function loadComments() {
 function addComment() {
   if (!currentUser) return alert("You must be logged in!");
   if (!currentTopicId) return;
-
   const text = commentInput.value.trim();
   if (!text) return alert("Enter a comment!");
 
   const uid = currentUser.uid;
-  if (!isAdmin() && !isTester()) {
+  if (!isAdmin()) {
     const lastTime = cooldowns[uid]?.comment || 0;
     if (Date.now() - lastTime < 30000) return alert("Wait 30 seconds between comments.");
     cooldowns[uid] = { ...cooldowns[uid], comment: Date.now() };
@@ -178,9 +193,56 @@ function deleteTopic(topicId) {
 }
 
 function deleteComment(commentId) {
-  if (!isAdmin() && !isTester()) return alert("Only admins or testers can delete comments.");
+  if (!isAdmin() && !(currentUser && currentUser.uid)) return alert("You don't have permission.");
   if (!confirm("Delete this comment?")) return;
   db.collection("topics").doc(currentTopicId).collection("comments").doc(commentId).delete().then(() => loadComments()).catch(err => alert("Failed to delete comment: " + err.message));
+}
+
+async function handleBanClick(evt) {
+  evt.stopPropagation?.();
+  const btn = evt.currentTarget || evt.target;
+  const uid = btn.getAttribute("data-uid");
+  if (!uid) return alert("No user id found.");
+
+  if (!isAdmin()) return alert("Only admins can ban users.");
+
+  const reason = prompt("Enter ban reason (short):");
+  if (reason === null) return;
+
+  const appeal = prompt("Appeal instructions (optional) — e.g. 'Email support@example.com' (leave blank for defaults):");
+  const appealInstructions = appeal ? appeal : "To appeal, contact support or open a ticket on our Discord.";
+
+  try {
+    await db.collection("banned").doc(uid).set({
+      reason,
+      bannedBy: auth.currentUser.uid,
+      bannedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      appealInstructions
+    });
+    alert("User banned.");
+  } catch (err) {
+    alert("Failed to ban user: " + err.message);
+    console.error(err);
+  }
+}
+
+async function handleUnbanClick(evt) {
+  evt.stopPropagation?.();
+  const btn = evt.currentTarget || evt.target;
+  const uid = btn.getAttribute("data-uid");
+  if (!uid) return alert("No user id found.");
+
+  if (!isAdmin()) return alert("Only admins can unban users.");
+
+  if (!confirm("Unban this user?")) return;
+
+  try {
+    await db.collection("banned").doc(uid).delete();
+    alert("User unbanned.");
+  } catch (err) {
+    alert("Failed to unban user: " + err.message);
+    console.error(err);
+  }
 }
 
 function escapeHtml(s) {
