@@ -1,3 +1,5 @@
+// Ariselle 2025 || All rights reserved to John, Demi, and Nyx || Website authored by AutoAegis and 7espion //
+
 const API_URL = "https://5c87639f-a295-4f3c-a7fb-8b708ca9a201-00-nppk283jm0n8.worf.replit.dev/fereldon";
 
 const fields = {
@@ -47,5 +49,6 @@ async function updateFereldonStats() {
 requestAnimationFrame(updateFereldonStats);
 
 setInterval(updateFereldonStats, 30000);
+
 
 
