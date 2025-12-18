@@ -1,3 +1,5 @@
+// Ariselle 2025 || All rights reserved to John, Demi, and Nyx || Website authored by AutoAegis and 7espion //
+
 const forumPanel = document.getElementById("forum-panel");
 const topicDetailPanel = document.getElementById("topic-detail-panel");
 const topicsDiv = document.getElementById("topics");
