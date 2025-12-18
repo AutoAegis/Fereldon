@@ -1,3 +1,5 @@
+// Ariselle 2025 || All rights reserved to John, Demi, and Nyx || Website authored by AutoAegis and 7espion //
+
 const firebaseConfig = {
   apiKey: "AIzaSyDtXW6okJbrP1pDbV_ICrdSKXhI30t5AJQ",
   authDomain: "ariselle.firebaseapp.com",
