@@ -1,3 +1,5 @@
+// Ariselle 2025 || All rights reserved to John, Demi, and Nyx || Website authored by AutoAegis and 7espion //
+
 const page = window.location.pathname.split("/").pop();
 
 if (page === "economy.html") {
@@ -50,6 +52,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (hero) setTimeout(() => { hero.classList.add("visible"); }, 100);
     if (brand) setTimeout(() => { brand.classList.add("visible"); }, 150);
 });
+
 
 
 
